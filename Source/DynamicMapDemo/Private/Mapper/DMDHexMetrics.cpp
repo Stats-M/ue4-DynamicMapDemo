@@ -11,5 +11,4 @@ UDMDHexMetrics::UDMDHexMetrics()
     DefaultHexVertices.Corner4 = FVector(0.0f, 0.0f, -OuterRadius);
     DefaultHexVertices.Corner5 = FVector(-InnerRadius, 0.0f, -0.5f * OuterRadius);
     DefaultHexVertices.Corner6 = FVector(-InnerRadius, 0.0f, 0.5f * OuterRadius);
-    DefaultHexVertices.Corner7 = DefaultHexVertices.Corner1;
 }

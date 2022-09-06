@@ -16,7 +16,7 @@
 // Header for base class Pawn
 #include "GameFramework/Pawn.h"
 
-// Headers for all components, our child BP_DMDCameraPawn will consists of
+// Headers for all components DMDCameraPawn will consists of
 #include "Components/SceneComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "GameFramework/SpringArmComponent.h"
