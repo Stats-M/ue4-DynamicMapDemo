@@ -7,10 +7,13 @@ public class DynamicMapDemo : ModuleRules
 	public DynamicMapDemo(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
-	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore" });
 
-		PrivateDependencyModuleNames.AddRange(new string[] {  });
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "ProceduralMeshComponent" });
+
+		// For use of ProceduralMesh we must add "ProceduralMeshComponent" here.
+		// Also add paths to ProceduralMeshComponent.h and ProceduralMeshComponent.generated.h
+		// to VC project properties, both to Include paths and IntelliSence paths
+		PrivateDependencyModuleNames.AddRange(new string[] { "ProceduralMeshComponent" });
 
 		// Sometimes subfolders with .h files are not referenced correctly
 		// This way we can setup additional lookup directories

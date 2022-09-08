@@ -13,11 +13,11 @@ ADMDCameraPawn::ADMDCameraPawn()
 	// CreateDefaultSubobject is preferred over AttachToComponent.
 	// Argument - component name, used by UE (not displayed
 	// name, although they are equal this time).
-	ScenePtr = CreateDefaultSubobject<USceneComponent>("Scene");
-	MaterialSpherePtr = CreateDefaultSubobject<UStaticMeshComponent>("MaterialSphereMesh");
-	SpringArmPtr = CreateDefaultSubobject<USpringArmComponent>("SpringArm");
-	CameraPtr = CreateDefaultSubobject<UCameraComponent>("Camera");
-	FloatingPawnMovementPtr = CreateDefaultSubobject<UFloatingPawnMovement>("FloatingPawnMovement");
+	ScenePtr = CreateDefaultSubobject<USceneComponent>(TEXT("Scene"));
+	MaterialSpherePtr = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MaterialSphereMesh"));
+	SpringArmPtr = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
+	CameraPtr = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
+	FloatingPawnMovementPtr = CreateDefaultSubobject<UFloatingPawnMovement>(TEXT("FloatingPawnMovement"));
 
 	// Adjust components scale for our convenience
 	// NB. Each component scales itself + all childrens at once.
