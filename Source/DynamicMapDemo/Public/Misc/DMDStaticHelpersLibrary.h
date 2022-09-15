@@ -18,7 +18,7 @@ UCLASS()
 class DYNAMICMAPDEMO_API UDMDStaticHelpersLibrary : public UObject
 {
 	GENERATED_BODY()
-
+	
 public:
 
 	UDMDStaticHelpersLibrary();
