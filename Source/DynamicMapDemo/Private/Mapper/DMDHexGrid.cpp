@@ -11,7 +11,7 @@ ADMDHexGrid::ADMDHexGrid()
 
 }
 
-// Called when the game starts or when spawned
+// Called when the game mode starts or when spawned
 void ADMDHexGrid::BeginPlay()
 {
 	Super::BeginPlay();

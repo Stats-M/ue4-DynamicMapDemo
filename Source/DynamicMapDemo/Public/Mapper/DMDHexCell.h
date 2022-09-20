@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
+#include "DMDHexMetrics.h"
+
 #include "DMDHexCell.generated.h"
 
 /**

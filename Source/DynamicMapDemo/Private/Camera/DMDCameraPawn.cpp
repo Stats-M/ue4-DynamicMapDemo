@@ -37,7 +37,7 @@ ADMDCameraPawn::ADMDCameraPawn()
 	//UE_LOG(LogTemp, Error, TEXT("%s"), *tmpStr);
 }
 
-// Called when the game starts or when spawned
+// Called when the game mode starts or when spawned
 void ADMDCameraPawn::BeginPlay()
 {
 	Super::BeginPlay();

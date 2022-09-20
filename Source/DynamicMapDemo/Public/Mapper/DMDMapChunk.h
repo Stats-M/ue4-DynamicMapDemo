@@ -7,6 +7,7 @@
 // Header for base class Actor
 #include "GameFramework/Actor.h"
 #include "DMDHexMetrics.h"
+#include "DMDHexCell.h"
 
 // Headers for all components DMDMapChunk will consists of
 #include "Components/SceneComponent.h"
@@ -41,13 +42,12 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	UProceduralMeshComponent* ProceduralMeshPtr;  //ProceduralMesh component
 
-#if WITH_EDITOR  // Use more strict UE_BUILD_SHIPPING to check if Config==Shipping
+//#if WITH_EDITOR  // Use more strict UE_BUILD_SHIPPING to check if Config==Shipping
 	// Map chunk text labels are only available in editor,
 	// so it must be enclosed with "#if WITH_EDITOR" before use
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-	TArray<ATextRenderActor*> CoordTextActors {};  //Array of TextRenderActors
-	//ATextRenderActor* TextRenderActorPtr = nullptr;  //TextRenderActor (contains private class UTextRenderComponent)
-#endif
+	TArray<ATextRenderActor*> CoordTextActors {};  //Array of TextRenderActors (contains private class UTextRenderComponent)
+//#endif
 
 	// ProceduralMesh data arrays
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Mesh Data")
@@ -60,9 +60,6 @@ public:
 	TArray<FVector2D> UVs;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Mesh Data")
 	TArray<FLinearColor> VertexLinearColors;
-	//Property was used in deprecated function
-	//UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Mesh Data")
-	//TArray<FColor> VertexColors;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Mesh Data")
 	TArray<FProcMeshTangent> Tangents;
 
@@ -72,15 +69,18 @@ public:
 	// Creates procedural mesh
 	void CreateMesh();
 
+	// Recalculate mesh triangles data
+	void TriangulateMesh();
+
 protected:
 	// Chunk width (preferrably even integer)
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Chunk Metrics")
-	int32 ChunkSizeX = 10;
+	int32 ChunkSizeX = 5;
 
 	// Chunk height (preferrably even integer)
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Chunk Metrics")
-	int32 ChunkSizeY = 10;
+	int32 ChunkSizeY = 5;
 
-	// Called when the game starts or when spawned
+	// Called when the game mode starts or when spawned
 	virtual void BeginPlay() override;
 };

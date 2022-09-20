@@ -4,6 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "DMDHexMetrics.h"
+#include "DMDHexCell.h"
+#include "DMDMapChunk.h"
 #include "DMDHexGrid.generated.h"
 
 /**
@@ -19,12 +22,19 @@ public:
 	// Sets default values for this actor's properties
 	ADMDHexGrid();
 
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-
-public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+protected:
+	// Amount of chunks (X) in the grid
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Grid Metrics")
+	int32 ChunksX = 2;
+
+	// Amount of chunks (Y) in the grid
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Grid Metrics")
+	int32 ChunksY = 2;
+
+	// Called when the game mode starts or when spawned
+	virtual void BeginPlay() override;
 
 };

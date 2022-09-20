@@ -6,7 +6,6 @@
 #include "UObject/NoExportTypes.h"
 #include "DMDHexMetrics.generated.h"
 
-
 /**
  * Class that defines all metrics for game world. 
  * Most of them are static.

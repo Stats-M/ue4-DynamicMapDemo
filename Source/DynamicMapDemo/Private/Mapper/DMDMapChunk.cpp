@@ -1,7 +1,8 @@
 // DynamicMap Demo. Copyright (C) 2022 Stanislav Moskalev
 
-
 #include "Mapper/DMDMapChunk.h"
+
+DEFINE_LOG_CATEGORY_STATIC(LogBaseGeometry, All, All)
 
 // Sets default values
 ADMDMapChunk::ADMDMapChunk()
@@ -15,22 +16,6 @@ ADMDMapChunk::ADMDMapChunk()
 
 	ScenePtr = CreateDefaultSubobject<USceneComponent>(TEXT("Scene"));
 	ProceduralMeshPtr = CreateDefaultSubobject<UProceduralMeshComponent>(TEXT("ProceduralMeshChunk"));
-#if WITH_EDITOR  // Use more strict UE_BUILD_SHIPPING to check if Config==Shipping
-	//TextRenderActorPtr = CreateDefaultSubobject<ATextRenderActor>(TEXT("TextRenderActor"));
-	//CoordTextActors.Reserve(ChunkSizeX * ChunkSizeY);
-	CoordTextActors.SetNumZeroed(ChunkSizeX * ChunkSizeY);
-	CoordTextActors[0] = CreateDefaultSubobject<ATextRenderActor>(TEXT("TextRenderActor00"));
-	CoordTextActors[1] = CreateDefaultSubobject<ATextRenderActor>(TEXT("TextRenderSomething"));
-	CoordTextActors[2] = CreateDefaultSubobject<ATextRenderActor>(TEXT("TextSURRENDER"));
-	/*
-	int i = 0;
-	for (auto& TextActor : CoordTextActors)
-	{
-		FString tmp_name = "TextRenderActor" + FString::FromInt(i);
-		TextActor = CreateDefaultSubobject<ATextRenderActor>(FName(tmp_name));
-	}
-	*/
-#endif
 
 	// Setting up hierarchy
 	// 1. Setting the root component for AActor
@@ -72,7 +57,7 @@ ADMDMapChunk::ADMDMapChunk()
 	*/
 }
 
-// Called when the game starts or when spawned
+// Called when the game mode starts or when spawned
 void ADMDMapChunk::BeginPlay()
 {
 	Super::BeginPlay();
@@ -80,6 +65,56 @@ void ADMDMapChunk::BeginPlay()
 	ClearMeshData();
 
 	CreateMesh();
+
+	UE_LOG(LogBaseGeometry, Warning, TEXT("HERE"));
+
+// This section creates independent actors, not subobjects.
+// That's why their spawn placed here and not in ADMDMapChunk() Ctor
+//#if WITH_EDITOR  // Use more strict UE_BUILD_SHIPPING to check if Config==Shipping
+	CoordTextActors.Reserve(ChunkSizeX * ChunkSizeY);                // Reserve memory
+	CoordTextActors.SetNumZeroed(ChunkSizeX * ChunkSizeY, false);    // Zero-init reserved memory, no shrink
+
+	UE_LOG(LogBaseGeometry, Warning, TEXT("Array size: %i"), CoordTextActors.Num());
+
+	UWorld* World = GetWorld();
+	if (World != nullptr)
+	{
+		UE_LOG(LogBaseGeometry, Warning, TEXT("Got UWorld*"));
+
+		//int i = 0;
+		for (int i = 0; i < ChunkSizeX * ChunkSizeY; ++i)
+		{
+			// Set new actor properties
+			FActorSpawnParameters Params;
+			//			Params.bDeferConstruction = true; // We defer construction so that we set ParentComponentActor prior to component registration so they appear selected
+						//Params.bAllowDuringConstructionScript = true;
+						//Params.OverrideLevel = GetOwner()->GetLevel();
+			FString tmp_name = "TextRenderActor" + FString::FromInt(i);
+			UE_LOG(LogBaseGeometry, Warning, TEXT("Got actor name: %s"), *tmp_name);
+			Params.Name = FName(tmp_name);
+
+			// Set actor location to be the same as Scene component
+			FVector Location = ScenePtr->GetComponentLocation();
+			//FRotator Rotation = FRotator(0.0f, 90.0f, 180.0f);
+			FRotator Rotation = FRotator(90.0f, 180.0f, 0.0f);        // Text "lays" in XY plane
+			//FRotator Rotation = ScenePtr->GetComponentRotation();
+			// Spawn actor of desired class
+			CoordTextActors[i] = World->SpawnActor<ATextRenderActor>(ATextRenderActor::StaticClass(), Location, Rotation, Params);
+
+			//CoordTextActors[i]->GetTextRender()->SetText(FText::FromString(TEXT("Dynamic Text")));
+			//CoordTextActors[i]->GetTextRender()->SetTextRenderColor(FColor::Red);
+			//CoordTextActors[i]->SetActorScale3D(FVector(5.f, 5.f, 5.f));
+			if (CoordTextActors[i])
+			{
+				UE_LOG(LogBaseGeometry, Warning, TEXT("Actor created"));
+			}
+			else
+			{
+				UE_LOG(LogBaseGeometry, Error, TEXT("Creation failed"));
+			}
+		}
+	}
+//#endif
 }
 
 // Called every frame
@@ -96,7 +131,6 @@ void ADMDMapChunk::ClearMeshData()
 	Triangles.Empty();
 	UVs.Empty();
 	Normals.Empty();
-	//VertexColors.Empty();
 	VertexLinearColors.Empty();
 	Tangents.Empty();
 }
@@ -120,15 +154,10 @@ void ADMDMapChunk::CreateMesh()
 	Triangles.Add(1);
 	Triangles.Add(2);
 
-	// Triangle 1
+	// Triangle 2
 	Triangles.Add(2);
 	Triangles.Add(1);
 	Triangles.Add(3);
-
-	//	UVs.Add(FVector2D(0.0f, 0.0f));
-	//	UVs.Add(FVector2D(1.0f, 0.0f));
-	//	UVs.Add(FVector2D(0.0f, 1.0f));
-	//	// UVs.Init(FVector2D(0.0f, 0.0f), 3);
 
 	UVs.Add(FVector2D(0.0f, 0.0f));
 	UVs.Add(FVector2D(0.0f, 1.0f));
@@ -139,7 +168,6 @@ void ADMDMapChunk::CreateMesh()
 	Normals.Init(FVector(0.0f, 0.0f, 0.0f), 3);
 
 	VertexLinearColors.Init(FLinearColor(0.0f, 0.0f, 0.0f, 1.0f), 3);
-	//VertexColors.Init(FColor(0.0f, 0.0f, 0.0f), 3);
 
 	//Tangents.Init(FProcMeshTangent(1.0f, 0.0f, 0.0f), 3);
 	Tangents.Init(FProcMeshTangent(0.0f, 0.0f, 0.0f), 3);
@@ -163,3 +191,6 @@ void ADMDMapChunk::CreateMesh()
 		ProceduralMeshPtr->CreateMeshSection_LinearColor(0, Vertices, Triangles, Normals, UVs, VertexLinearColors, Tangents, true);
 	}
 }
+
+void ADMDMapChunk::TriangulateMesh()
+{}
