@@ -9,10 +9,9 @@
 #include "DMDHexMetrics.h"
 #include "DMDHexCell.h"
 
-// Headers for all components DMDMapChunk will consists of
+// Headers for all components ADMDMapChunk consists of
 #include "Components/SceneComponent.h"
 #include "ProceduralMeshComponent.h"
-#include "Engine/TextRenderActor.h"
 
 #include "DMDMapChunk.generated.h"
 
@@ -42,13 +41,6 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	UProceduralMeshComponent* ProceduralMeshPtr;  //ProceduralMesh component
 
-//#if WITH_EDITOR  // Use more strict UE_BUILD_SHIPPING to check if Config==Shipping
-	// Map chunk text labels are only available in editor,
-	// so it must be enclosed with "#if WITH_EDITOR" before use
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-	TArray<ATextRenderActor*> CoordTextActors {};  //Array of TextRenderActors (contains private class UTextRenderComponent)
-//#endif
-
 	// ProceduralMesh data arrays
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Mesh Data")
 	TArray<FVector> Vertices;
@@ -73,13 +65,6 @@ public:
 	void TriangulateMesh();
 
 protected:
-	// Chunk width (preferrably even integer)
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Chunk Metrics")
-	int32 ChunkSizeX = 5;
-
-	// Chunk height (preferrably even integer)
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Chunk Metrics")
-	int32 ChunkSizeY = 5;
 
 	// Called when the game mode starts or when spawned
 	virtual void BeginPlay() override;

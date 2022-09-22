@@ -2,7 +2,7 @@
 
 #include "Mapper/DMDMapChunk.h"
 
-DEFINE_LOG_CATEGORY_STATIC(LogBaseGeometry, All, All)
+DEFINE_LOG_CATEGORY_STATIC(LogHexGrid, All, All)
 
 // Sets default values
 ADMDMapChunk::ADMDMapChunk()
@@ -13,7 +13,6 @@ ADMDMapChunk::ADMDMapChunk()
 	// CreateDefaultSubobject is preferred over AttachToComponent.
 	// Argument - component name that will be used by UE
 	// (it is not the same as displayed name of parent class).
-
 	ScenePtr = CreateDefaultSubobject<USceneComponent>(TEXT("Scene"));
 	ProceduralMeshPtr = CreateDefaultSubobject<UProceduralMeshComponent>(TEXT("ProceduralMeshChunk"));
 
@@ -23,38 +22,6 @@ ADMDMapChunk::ADMDMapChunk()
 	ScenePtr->bUseAttachParentBound = true;  // Use parent actor bounds instead of its own (optimization)
 	// 2. Setting subcomponents
 	ProceduralMeshPtr->SetupAttachment(ScenePtr);
-
-	/*
-	if (TextRenderActorPtr)
-	{
-		UTextRenderComponent* const TextRenderComponentPtr = TextRenderActorPtr->GetTextRender();
-		if (TextRenderComponentPtr)
-		{
-			TextRenderComponentPtr->SetText(FText::FromString("YOUR TEXT AS FText HERE"));
-			//TextRenderComponentPtr->SetText(FText("YOUR TEXT AS FText HERE"));
-		}
-		else
-		{
-			// Failure handling (TextRenderComponentPtr is nullptr)
-		}
-	}
-	else
-	{
-		// Failure handling (TextRenderActorPtr is nullptr)
-	}
-	*/
-
-	/* Old constructor with usage of Scene component
-	ScenePtr = CreateDefaultSubobject<USceneComponent>(TEXT("Scene"));
-	ProceduralMeshPtr = CreateDefaultSubobject<UProceduralMeshComponent>(TEXT("ProceduralMeshChunk"));
-
-	// Setting up hierarchy
-	// 1. Setting the root component for AActor
-	RootComponent = ScenePtr;
-	RootComponent = ProceduralMeshPtr;
-	// 2. Setting subcomponents
-	ProceduralMeshPtr->SetupAttachment(ScenePtr);
-	*/
 }
 
 // Called when the game mode starts or when spawned
@@ -65,56 +32,6 @@ void ADMDMapChunk::BeginPlay()
 	ClearMeshData();
 
 	CreateMesh();
-
-	UE_LOG(LogBaseGeometry, Warning, TEXT("HERE"));
-
-// This section creates independent actors, not subobjects.
-// That's why their spawn placed here and not in ADMDMapChunk() Ctor
-//#if WITH_EDITOR  // Use more strict UE_BUILD_SHIPPING to check if Config==Shipping
-	CoordTextActors.Reserve(ChunkSizeX * ChunkSizeY);                // Reserve memory
-	CoordTextActors.SetNumZeroed(ChunkSizeX * ChunkSizeY, false);    // Zero-init reserved memory, no shrink
-
-	UE_LOG(LogBaseGeometry, Warning, TEXT("Array size: %i"), CoordTextActors.Num());
-
-	UWorld* World = GetWorld();
-	if (World != nullptr)
-	{
-		UE_LOG(LogBaseGeometry, Warning, TEXT("Got UWorld*"));
-
-		//int i = 0;
-		for (int i = 0; i < ChunkSizeX * ChunkSizeY; ++i)
-		{
-			// Set new actor properties
-			FActorSpawnParameters Params;
-			//			Params.bDeferConstruction = true; // We defer construction so that we set ParentComponentActor prior to component registration so they appear selected
-						//Params.bAllowDuringConstructionScript = true;
-						//Params.OverrideLevel = GetOwner()->GetLevel();
-			FString tmp_name = "TextRenderActor" + FString::FromInt(i);
-			UE_LOG(LogBaseGeometry, Warning, TEXT("Got actor name: %s"), *tmp_name);
-			Params.Name = FName(tmp_name);
-
-			// Set actor location to be the same as Scene component
-			FVector Location = ScenePtr->GetComponentLocation();
-			//FRotator Rotation = FRotator(0.0f, 90.0f, 180.0f);
-			FRotator Rotation = FRotator(90.0f, 180.0f, 0.0f);        // Text "lays" in XY plane
-			//FRotator Rotation = ScenePtr->GetComponentRotation();
-			// Spawn actor of desired class
-			CoordTextActors[i] = World->SpawnActor<ATextRenderActor>(ATextRenderActor::StaticClass(), Location, Rotation, Params);
-
-			//CoordTextActors[i]->GetTextRender()->SetText(FText::FromString(TEXT("Dynamic Text")));
-			//CoordTextActors[i]->GetTextRender()->SetTextRenderColor(FColor::Red);
-			//CoordTextActors[i]->SetActorScale3D(FVector(5.f, 5.f, 5.f));
-			if (CoordTextActors[i])
-			{
-				UE_LOG(LogBaseGeometry, Warning, TEXT("Actor created"));
-			}
-			else
-			{
-				UE_LOG(LogBaseGeometry, Error, TEXT("Creation failed"));
-			}
-		}
-	}
-//#endif
 }
 
 // Called every frame
