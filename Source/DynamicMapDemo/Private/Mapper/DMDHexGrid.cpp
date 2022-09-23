@@ -18,7 +18,7 @@ ADMDHexGrid::ADMDHexGrid()
 	// Setting up hierarchy
 	// 1. Setting the root component for AActor
 	RootComponent = ScenePtr;
-	ScenePtr->bUseAttachParentBound = true;  // Use parent actor bounds instead of its own (optimization)
+	//ScenePtr->bUseAttachParentBound = true;  // Use parent actor bounds instead of its own (optimization)
 	// 2. Setting subcomponents
 	// none yet
 }
@@ -27,15 +27,41 @@ ADMDHexGrid::ADMDHexGrid()
 void ADMDHexGrid::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	// Enforce limits for map variables before spawning actors
+	if (ChunksAmountX > UDMDHexMetrics::ChunksAmountXMax)
+	{
+		UE_LOG(LogHexGrid, Warning, TEXT("Chunks amount (width) exceeds the limit. Fixed."));
+		ChunksAmountX = UDMDHexMetrics::ChunksAmountXMax;
+	}
+
+	if (ChunksAmountY > UDMDHexMetrics::ChunksAmountYMax)
+	{
+		UE_LOG(LogHexGrid, Warning, TEXT("Chunks amount (height) exceeds the limit. Fixed."));
+		ChunksAmountY = UDMDHexMetrics::ChunksAmountYMax;
+	}
+
+	if (ChunkSizeX > UDMDHexMetrics::ChunkSizeXMax)
+	{
+		UE_LOG(LogHexGrid, Warning, TEXT("Chunks size (width) exceeds the limit. Fixed."));
+		ChunkSizeX = UDMDHexMetrics::ChunkSizeXMax;
+	}
+
+	if (ChunkSizeY > UDMDHexMetrics::ChunkSizeYMax)
+	{
+		UE_LOG(LogHexGrid, Warning, TEXT("Chunks size (height) exceeds the limit. Fixed."));
+		ChunkSizeY = UDMDHexMetrics::ChunkSizeYMax;
+	}
+
 #if (!UE_BUILD_SHIPPING)
 	UE_LOG(LogHexGrid, Display, TEXT("ADMDMapChunk::BeginPlay() - init cell labels creation"));
 
 	// This section creates independent actors, not subobjects.
 	// That's why their spawn placed here and not in ADMDMapChunk() Ctor
 
-	CoordTextActors.Reserve(ChunkSizeX * ChunkSizeY);                // Reserve memory
-	CoordTextActors.SetNumZeroed(ChunkSizeX * ChunkSizeY, false);    // Zero-init reserved memory, no shrink
+	int32 array_size_ = ChunksAmountX * ChunksAmountY;
+	CoordTextActors.Reserve(array_size_);                // Reserve memory
+	CoordTextActors.SetNumZeroed(array_size_, false);    // Zero-init reserved memory, no shrink
 	UE_LOG(LogHexGrid, Display, TEXT("Label pointers array has %i elements allocated"), CoordTextActors.Num());
 
 	UWorld* World = GetWorld();
@@ -44,7 +70,7 @@ void ADMDHexGrid::BeginPlay()
 		UE_LOG(LogHexGrid, Display, TEXT("UWorld* pointer acquired sucessfully"));
 
 		//int i = 0;
-		for (int i = 0; i < ChunkSizeX * ChunkSizeY; ++i)
+		for (int i = 0; i < array_size_; ++i)
 		{
 			// Set new actor properties
 			FActorSpawnParameters spawn_params_;
@@ -52,6 +78,7 @@ void ADMDHexGrid::BeginPlay()
 			//spawn_params_.bAllowDuringConstructionScript = true;
 			//spawn_params_.OverrideLevel = GetOwner()->GetLevel();
 			FString actor_name_prefix_ = "CellCoordsActor" + FString::FromInt(i);
+			FString actor_name_ = FString::Printf(TEXT("CellCoordsActor%04d"), i);
 			UE_LOG(LogHexGrid, Display, TEXT("Generated actor nameID: %s"), *actor_name_prefix_);
 			spawn_params_.Name = FName(actor_name_prefix_);
 

@@ -24,7 +24,7 @@
  *  - all text labels for all chunks
  *  - all cells data
  */
-UCLASS()
+UCLASS(BlueprintType, Blueprintable)
 class DYNAMICMAPDEMO_API ADMDHexGrid : public AActor
 {
 	GENERATED_BODY()
@@ -43,28 +43,52 @@ public:
 #if !UE_BUILD_SHIPPING  // Use more strict than WITH_EDITOR check (project Config==Shipping)
 	// Map chunk text labels are only available in editor,
 	// so it must be enclosed with "#if WITH_EDITOR" or UE_BUILD_SHIPPING before use
-	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components") - incompare with #if...#endif
 	TArray<ATextRenderActor*> CoordTextActors{};  //Array of TextRenderActors (contains private class UTextRenderComponent)
+
+	// Set start text labels location (origin)
+	FVector LabelsStartLocation
+	{
+		0.0f, 0.0f, 5.0f
+	};
 #endif
 
 protected:
-	// Amount of chunks (X) in the grid
+	// Amount of chunks in the grid (grid width)
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Grid Metrics")
-	int32 ChunksX = 2;
+	int32 ChunksAmountX = 1;
 
-	// Amount of chunks (Y) in the grid
+	// Amount of chunks in the grid (grid height)
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Grid Metrics")
-	int32 ChunksY = 2;
+	int32 ChunksAmountY = 1;
 
 	// Chunk width (preferrably even integer)
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Chunk Metrics")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Grid Metrics")
 	int32 ChunkSizeX = 5;
 
 	// Chunk height (preferrably even integer)
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Chunk Metrics")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Grid Metrics")
 	int32 ChunkSizeY = 5;
+
+	// Set start actor location (oriin)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Grid Metrics")
+	FVector GridStartLocation
+	{
+		0.0f, 0.0f, 0.0f
+	};
 
 	// Called when the game mode starts or when spawned
 	virtual void BeginPlay() override;
+
+	// Linear array of spawned map chunks. From left to right, from closest line to most far.
+	// In UE4 coords that means from y=0 to ChunksAmountY, from x=0 to ChunksAmountX
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Grid Elements")
+	TArray<ADMDMapChunk*> MapChunkActors{};  //Linear array of DMDMapChunk* (map chunks)
+
+	// Linear array of map cells. From left to right, from closest line to most far.
+	// In UE4 coords that means from y=0 to ChunksAmountY*ChunkSizeY, 
+	// from x=0 to ChunksAmountX*ChunkSizeX
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Grid Elements")
+	TArray<UDMDHexCell*> GridCells{};  //Linear array of UDMDHexCell* (map cells)
 
 };

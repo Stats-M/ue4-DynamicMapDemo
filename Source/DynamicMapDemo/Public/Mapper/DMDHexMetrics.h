@@ -7,7 +7,7 @@
 #include "DMDHexMetrics.generated.h"
 
 /**
- * Class that defines all metrics for game world. 
+ * Class that defines all metrics for game map. 
  * Most of them are static.
  */
 UCLASS(BlueprintType)
@@ -26,4 +26,13 @@ public:
 	static const TArray<FVector> HexMetrics3D;
 	// Default coordinates of hex vertices in 2D
 	static const TArray<FVector2D> HexMetrics2D;
+
+	// Maximum chunks amount in the map (map width)
+	static const int32 ChunksAmountXMax;
+	// Maximum chunks amount in the map (map height)
+	static const int32 ChunksAmountYMax;
+	// Maximum chunk width
+	static const int32 ChunkSizeXMax;
+	// Maximum chunk height
+	static const int32 ChunkSizeYMax;
 };
