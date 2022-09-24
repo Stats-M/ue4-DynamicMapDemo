@@ -47,7 +47,7 @@ void ADMDHexGrid::BeginPlay()
 		UE_LOG(LogHexGrid, Display, TEXT("UWorld* pointer acquired sucessfully"));
 
 		int i = 0;  // Linear counter for 1-dimensional objects array
-		// Traverse all grid cells (square array)
+		// Traverse all cells (square array)
 		for (int grid_x = 0; grid_x < cellsCountX; ++grid_x)
 		{
 			for (int grid_y = 0; grid_y < cellsCountY; ++grid_y)
@@ -55,7 +55,7 @@ void ADMDHexGrid::BeginPlay()
 				// 1. Spawn actor
 
 				FActorSpawnParameters spawn_params_;
-				spawn_params_.OverrideLevel = GetOwner()->GetLevel();
+				spawn_params_.OverrideLevel = World->GetCurrentLevel();
 				FString actor_name_ = FString::Printf(TEXT("CellCoordsActor-%04d-%04d"),
 													  grid_x, 
 													  grid_y);
@@ -101,6 +101,15 @@ void ADMDHexGrid::BeginPlay()
 				}
 
 				++i;  // This item has been created, advance to the next one
+			}
+		}
+
+		i = 0;  // Reset linear counter for 1-dimensional objects array
+		// Traverse all chunks
+		for (int chunk_x = 0; chunk_x < ChunksAmountX; ++chunk_x)
+		{
+			for (int chunk_y = 0; chunk_y < ChunksAmountY; ++chunk_y)
+			{
 			}
 		}
 

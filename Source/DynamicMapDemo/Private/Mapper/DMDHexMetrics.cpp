@@ -6,7 +6,7 @@
  * Static members initialization 
  * (outside of any class definitions).
  */
-const float UDMDHexMetrics::OuterRadius = 10.0f;
+const float UDMDHexMetrics::OuterRadius = 100.0f;
 
 const float UDMDHexMetrics::InnerRadius = UDMDHexMetrics::OuterRadius * 0.866025404f;
 
