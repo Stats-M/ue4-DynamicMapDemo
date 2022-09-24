@@ -40,7 +40,7 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	USceneComponent* ScenePtr;  //Scene component (root for ProceduralMesh)
 
-#if !UE_BUILD_SHIPPING  // Use more strict than WITH_EDITOR check (project Config==Shipping)
+#if !UE_BUILD_SHIPPING  // (UE_BUILD_SHIPPING - project Config==Shipping)
 	// Map chunk text labels are only available in editor,
 	// so it must be enclosed with "#if WITH_EDITOR" or UE_BUILD_SHIPPING before use
 	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components") - incompare with #if...#endif
@@ -49,11 +49,10 @@ public:
 	// Set start text labels location (origin)
 	FVector LabelsStartLocation
 	{
-		0.0f, 0.0f, 5.0f
+		-200.0f, -200.0f, 5.0f
 	};
 #endif
 
-protected:
 	// Amount of chunks in the grid (grid width)
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Grid Metrics")
 	int32 ChunksAmountX = 1;
@@ -74,21 +73,34 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Grid Metrics")
 	FVector GridStartLocation
 	{
-		0.0f, 0.0f, 0.0f
+		-200.0f, -200.0f, 0.0f
 	};
 
+protected:
 	// Called when the game mode starts or when spawned
 	virtual void BeginPlay() override;
 
-	// Linear array of spawned map chunks. From left to right, from closest line to most far.
+	// Linear array of spawned map chunks. From left to right, from closest line to most far away.
 	// In UE4 coords that means from y=0 to ChunksAmountY, from x=0 to ChunksAmountX
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Grid Elements")
 	TArray<ADMDMapChunk*> MapChunkActors{};  //Linear array of DMDMapChunk* (map chunks)
 
-	// Linear array of map cells. From left to right, from closest line to most far.
+	// Linear array of map cells. From left to right, from closest line to most far away.
 	// In UE4 coords that means from y=0 to ChunksAmountY*ChunkSizeY, 
 	// from x=0 to ChunksAmountX*ChunkSizeX
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Grid Elements")
 	TArray<UDMDHexCell*> GridCells{};  //Linear array of UDMDHexCell* (map cells)
 
+private:
+	// Total cells count (width)
+	int32 cellsCountX = 0;
+	// Total cells count (height)
+	int32 cellsCountY = 0;
+	// Total cells on map
+	int32 cellsCountTotal = 0;
+	// Total chunks on map
+	int32 chunksCountTotal = 0;
+
+	// Init grid-related variables with boundaries check
+	void InitGridVariables();
 };

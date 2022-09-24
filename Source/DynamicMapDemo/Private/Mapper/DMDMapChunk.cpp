@@ -103,7 +103,7 @@ void ADMDMapChunk::CreateMesh()
 		*	@param	bCreateCollision	Indicates whether collision should be created for this section. This adds significant cost.
 		*/
 
-		// Don't use this function. It is deprecated. Use LinearColor version.
+		// Don't use CreateMeshSection() function. It is deprecated. Use LinearColor version.
 		//ProceduralMeshPtr->CreateMeshSection(0, Vertices, Triangles, Normals, UVs, VertexColors, Tangents, true);
 		ProceduralMeshPtr->CreateMeshSection_LinearColor(0, Vertices, Triangles, Normals, UVs, VertexLinearColors, Tangents, true);
 	}
