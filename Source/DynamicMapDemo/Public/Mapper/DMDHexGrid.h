@@ -91,6 +91,10 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Grid Elements")
 	TArray<UDMDHexCell*> GridCells{};  //Linear array of UDMDHexCell* (map cells)
 
+	// Font size for grid labels
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Grid Metrics")
+	float LabelFontSize = 24.0f;
+
 private:
 	// Total cells count (width)
 	int32 cellsCountX = 0;

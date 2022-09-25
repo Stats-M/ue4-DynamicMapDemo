@@ -31,29 +31,31 @@ void ADMDHexGrid::BeginPlay()
 	// Init map variables we will work with
 	InitGridVariables();
 
-#if (!UE_BUILD_SHIPPING)
-	UE_LOG(LogHexGrid, Display, TEXT("ADMDMapChunk::BeginPlay() - init cell labels creation"));
-
-	// This section creates independent actors, not subobjects.
-	// That's why their spawn placed here and not in ADMDHexGrid() Ctor
-
-	CoordTextActors.Reserve(cellsCountTotal);                // Reserve memory. 1 text actor per 1 cell
-	CoordTextActors.SetNumZeroed(cellsCountTotal, false);    // Zero-init reserved memory, no shrink
-	UE_LOG(LogHexGrid, Display, TEXT("Label pointers array has %i elements, memory reserved"), CoordTextActors.Num());
-
 	UWorld* World = GetWorld();
 	if (World != nullptr)
 	{
 		UE_LOG(LogHexGrid, Display, TEXT("UWorld* pointer acquired sucessfully"));
 
-		int i = 0;  // Linear counter for 1-dimensional objects array
+		int i = 0;  // Linear counter for 1-dimensional arrays (declared outside #if)
+
+		// STEP 1. SPAWN TextRender ACTORS
+#if (!UE_BUILD_SHIPPING)
+		UE_LOG(LogHexGrid, Display, TEXT("ADMDHexGrid::BeginPlay() - init cell labels creation"));
+
+		// This section creates independent actors, not subobjects.
+		// That's why their spawn placed here and not in ADMDHexGrid() Ctor
+
+		CoordTextActors.Reserve(cellsCountTotal);                // Reserve memory. 1 text actor per 1 cell
+		CoordTextActors.SetNumZeroed(cellsCountTotal, false);    // Zero-init reserved memory, no shrink
+		UE_LOG(LogHexGrid, Display, TEXT("Label pointers array has %i elements, memory reserved"), CoordTextActors.Num());
+
+		i = 0;  // Reset counter
 		// Traverse all cells (square array)
 		for (int grid_x = 0; grid_x < cellsCountX; ++grid_x)
 		{
 			for (int grid_y = 0; grid_y < cellsCountY; ++grid_y)
 			{
-				// 1. Spawn actor
-
+				// Spawn actor
 				FActorSpawnParameters spawn_params_;
 				spawn_params_.OverrideLevel = World->GetCurrentLevel();
 				FString actor_name_ = FString::Printf(TEXT("CellCoordsActor-%04d-%04d"),
@@ -63,14 +65,13 @@ void ADMDHexGrid::BeginPlay()
 				spawn_params_.Name = FName(actor_name_);
 
 				// Location is a sum of current cell location and label origin
-				FVector Location = FVector(grid_x * UDMDHexMetrics::OuterRadius, 
-										   grid_y * UDMDHexMetrics::OuterRadius,
-										   0.0f) 
-					             + LabelsStartLocation;
+				FVector Location = LabelsStartLocation + FVector(grid_x * UDMDHexMetrics::OuterRadius,
+																 grid_y * UDMDHexMetrics::OuterRadius,
+																 0.0f);
 				FRotator Rotation = FRotator(90.0f, 180.0f, 0.0f);        // Text "lays" in XY plane
 				CoordTextActors[i] = World->SpawnActor<ATextRenderActor>(ATextRenderActor::StaticClass(), Location, Rotation, spawn_params_);
 
-				// 2. Set up Actor's text
+				// Set up actor's text
 				if (CoordTextActors[i])
 				{
 					UE_LOG(LogHexGrid, Display, TEXT("Actor with label= %s and nameID= %s created"),
@@ -80,9 +81,10 @@ void ADMDHexGrid::BeginPlay()
 					UTextRenderComponent* const TextRenderComponentPtr = CoordTextActors[i]->GetTextRender();
 					if (TextRenderComponentPtr)
 					{
-						FString actor_text_ = FString::Printf(TEXT("%i-%i"),
+						FString actor_text_ = FString::Printf(TEXT("%i<br>%i"),
 															  grid_x,
 															  grid_y);
+						TextRenderComponentPtr->SetWorldSize(LabelFontSize);    // Set font size
 						TextRenderComponentPtr->SetText(actor_text_);
 					}
 					else
@@ -100,16 +102,39 @@ void ADMDHexGrid::BeginPlay()
 						   *CoordTextActors[i]->GetFName().ToString());
 				}
 
-				++i;  // This item has been created, advance to the next one
+				++i;  // Advance linear counter to the next element
 			}
 		}
+#endif
 
-		i = 0;  // Reset linear counter for 1-dimensional objects array
+		// STEP 2. SPAWN MapChunk ACTORS
+		UE_LOG(LogHexGrid, Display, TEXT("ADMDHexGrid::BeginPlay() - init map chunks creation"));
+
+		MapChunkActors.Reserve(chunksCountTotal);                // Reserve memory.
+		MapChunkActors.SetNumZeroed(chunksCountTotal, false);    // Zero-init reserved memory, no shrink
+		UE_LOG(LogHexGrid, Display, TEXT("Map chunks array has %i elements, memory reserved"), MapChunkActors.Num());
+
+		i = 0;  // Reset counter
 		// Traverse all chunks
 		for (int chunk_x = 0; chunk_x < ChunksAmountX; ++chunk_x)
 		{
 			for (int chunk_y = 0; chunk_y < ChunksAmountY; ++chunk_y)
 			{
+				// Spawn actor
+				FActorSpawnParameters spawn_params_;
+				spawn_params_.OverrideLevel = World->GetCurrentLevel();
+				FString actor_name_ = FString::Printf(TEXT("MapChunkActor-%04d-%04d"),
+													  chunk_x,
+													  chunk_y);
+				UE_LOG(LogHexGrid, Display, TEXT("Generated actor nameID: %s"), *actor_name_);
+				spawn_params_.Name = FName(actor_name_);
+
+				// Location is a sum of grid origin and each chunk location
+				FVector Location = GridStartLocation + FVector(chunk_x * UDMDHexMetrics::OuterRadius * ChunkSizeX,
+															   chunk_y * UDMDHexMetrics::OuterRadius * ChunkSizeY,
+																0.0f);
+				FRotator Rotation = FRotator(90.0f, 180.0f, 0.0f);        // Chunk's meshes "lays" in XY plane
+				MapChunkActors[i] = World->SpawnActor<ADMDMapChunk>(ADMDMapChunk::StaticClass(), Location, Rotation, spawn_params_);
 			}
 		}
 
@@ -172,7 +197,6 @@ void ADMDHexGrid::BeginPlay()
 	}
 	*/
 
-#endif
 }
 
 // Called every frame
