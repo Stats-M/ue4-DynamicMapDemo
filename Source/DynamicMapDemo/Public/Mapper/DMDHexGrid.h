@@ -37,7 +37,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	// Scene component (root for ProceduralMesh for it to have Transform)
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Grid Components")
 	USceneComponent* ScenePtr;  //Scene component (root for ProceduralMesh)
 
 #if !UE_BUILD_SHIPPING  // (UE_BUILD_SHIPPING - project Config==Shipping)
@@ -45,13 +45,14 @@ public:
 	// so it must be enclosed with "#if WITH_EDITOR" or UE_BUILD_SHIPPING before use
 	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components") - incompare with #if...#endif
 	TArray<ATextRenderActor*> CoordTextActors{};  //Array of TextRenderActors (contains private class UTextRenderComponent)
+#endif
 
 	// Set start text labels location (origin)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Grid Metrics")
 	FVector LabelsStartLocation
 	{
 		-200.0f, -200.0f, 5.0f
 	};
-#endif
 
 	// Amount of chunks in the grid (grid width)
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Grid Metrics")
@@ -73,7 +74,7 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Grid Metrics")
 	FVector GridStartLocation
 	{
-		-200.0f, -200.0f, 0.0f
+		-600.0f, -600.0f, 0.0f
 	};
 
 protected:

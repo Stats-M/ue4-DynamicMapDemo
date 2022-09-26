@@ -7,7 +7,9 @@ DEFINE_LOG_CATEGORY_STATIC(LogHexGrid, All, All)
 // Sets default values
 ADMDHexGrid::ADMDHexGrid()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	UE_LOG(LogHexGrid, Display, TEXT("ADMDHexGrid constructor"));
+	
+	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	// CreateDefaultSubobject is preferred over AttachToComponent.
@@ -40,7 +42,7 @@ void ADMDHexGrid::BeginPlay()
 
 		// STEP 1. SPAWN TextRender ACTORS
 #if (!UE_BUILD_SHIPPING)
-		UE_LOG(LogHexGrid, Display, TEXT("ADMDHexGrid::BeginPlay() - init cell labels creation"));
+		UE_LOG(LogHexGrid, Display, TEXT("ADMDHexGrid - init cell labels creation"));
 
 		// This section creates independent actors, not subobjects.
 		// That's why their spawn placed here and not in ADMDHexGrid() Ctor
@@ -133,8 +135,11 @@ void ADMDHexGrid::BeginPlay()
 				FVector Location = GridStartLocation + FVector(chunk_x * UDMDHexMetrics::OuterRadius * ChunkSizeX,
 															   chunk_y * UDMDHexMetrics::OuterRadius * ChunkSizeY,
 																0.0f);
-				FRotator Rotation = FRotator(90.0f, 180.0f, 0.0f);        // Chunk's meshes "lays" in XY plane
+				FRotator Rotation = FRotator(0.0f, 0.0f, 0.0f);
 				MapChunkActors[i] = World->SpawnActor<ADMDMapChunk>(ADMDMapChunk::StaticClass(), Location, Rotation, spawn_params_);
+
+				// Try to optimize performance by ignoring overlapping events for the mesh
+				MapChunkActors[i]->bGenerateOverlapEventsDuringLevelStreaming = false;
 			}
 		}
 

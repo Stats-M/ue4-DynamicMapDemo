@@ -3,10 +3,14 @@
 #include "Camera/DMDCameraPawn.h"
 #include "Components/InputComponent.h"  // for handling input
 
+DEFINE_LOG_CATEGORY_STATIC(LogCamera, All, All)
+
 // Sets default values
 ADMDCameraPawn::ADMDCameraPawn()
 {
- 	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	UE_LOG(LogCamera, Display, TEXT("ADMDCameraPawn constructor"));
+	
+	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	// Create components.
@@ -33,15 +37,14 @@ ADMDCameraPawn::ADMDCameraPawn()
 	MaterialSpherePtr->SetupAttachment(ScenePtr);
 	SpringArmPtr->SetupAttachment(MaterialSpherePtr);
 	CameraPtr->SetupAttachment(SpringArmPtr);
-
-	//UE_LOG(LogTemp, Error, TEXT("%s"), *tmpStr);
 }
 
 // Called when the game mode starts or when spawned
 void ADMDCameraPawn::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	UE_LOG(LogCamera, Display, TEXT("ADMDCameraPawn::BeginPlay()"));
 }
 
 // Called every frame
@@ -55,6 +58,8 @@ void ADMDCameraPawn::Tick(float DeltaTime)
 void ADMDCameraPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
+
+	UE_LOG(LogCamera, Display, TEXT("Binding input in ADMDCameraPawn"));
 
 	// Handle axis mapping (continuous input) for our camera
 

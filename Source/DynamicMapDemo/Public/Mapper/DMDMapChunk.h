@@ -68,4 +68,14 @@ protected:
 
 	// Called when the game mode starts or when spawned
 	virtual void BeginPlay() override;
+
+	// Init chunk-related variables with boundaries check
+	// It is a replacement for a parametrized constructor, 
+	// prohibited in UE4
+	void InitChunkVariables();
+
+private:
+	// Watchdog to enforce InitChunkVariables() call
+	// before any action with mesh can be permitted
+	bool bWasInitialized = false;
 };
