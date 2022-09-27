@@ -2,6 +2,7 @@
 
 #include "Camera/DMDCameraPawn.h"
 #include "Components/InputComponent.h"  // for handling input
+#include "EngineUtils.h"                // for iterators support
 
 DEFINE_LOG_CATEGORY_STATIC(LogCamera, All, All)
 
@@ -17,26 +18,26 @@ ADMDCameraPawn::ADMDCameraPawn()
 	// CreateDefaultSubobject is preferred over AttachToComponent.
 	// Argument - component name, used by UE (not displayed
 	// name, although they are equal this time).
-	ScenePtr = CreateDefaultSubobject<USceneComponent>(TEXT("Scene"));
-	MaterialSpherePtr = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MaterialSphereMesh"));
-	SpringArmPtr = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
-	CameraPtr = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
-	FloatingPawnMovementPtr = CreateDefaultSubobject<UFloatingPawnMovement>(TEXT("FloatingPawnMovement"));
+	Scene = CreateDefaultSubobject<USceneComponent>(TEXT("Scene"));
+	MaterialSphere = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MaterialSphereMesh"));
+	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
+	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
+	FloatingPawnMovement = CreateDefaultSubobject<UFloatingPawnMovement>(TEXT("FloatingPawnMovement"));
 
 	// Adjust components scale for our convenience
 	// NB. Each component scales itself + all childrens at once.
 	// 1. Reduce sphere radius (it will scale springarm and camera as well)
-	MaterialSpherePtr->SetWorldScale3D(FVector(0.25f));
+	MaterialSphere->SetWorldScale3D(FVector(0.25f));
 	// 2. Restore back half of Camera scale (0,25*2 = 0,5)
-	CameraPtr->SetWorldScale3D(FVector(2.0f));
+	Camera->SetWorldScale3D(FVector(2.0f));
 
 	// Setting up hierarchy
 	// 1. Setting the root component
-	RootComponent = ScenePtr;
+	RootComponent = Scene;
 	// 2. Setting subcomponents
-	MaterialSpherePtr->SetupAttachment(ScenePtr);
-	SpringArmPtr->SetupAttachment(MaterialSpherePtr);
-	CameraPtr->SetupAttachment(SpringArmPtr);
+	MaterialSphere->SetupAttachment(Scene);
+	SpringArm->SetupAttachment(MaterialSphere);
+	Camera->SetupAttachment(SpringArm);
 }
 
 // Called when the game mode starts or when spawned
@@ -44,7 +45,38 @@ void ADMDCameraPawn::BeginPlay()
 {
 	Super::BeginPlay();
 
-	UE_LOG(LogCamera, Display, TEXT("ADMDCameraPawn::BeginPlay()"));
+	UE_LOG(LogCamera, Display, TEXT("ADMDCameraPawn::BeginPlay() - start"));
+
+	// Try to set camera from the current pawn as active
+	Camera->SetActive(true);
+
+	// We will try to delete automatically spawned additional CameraActor (if exists)
+	UE_LOG(LogCamera, Display, TEXT("Trying to get rid of auto-spawned camera actor (if any)..."));
+	for (TActorIterator<ACameraActor> ActorIt(GetWorld()); ActorIt; ++ActorIt)
+	{
+		FString actor_name_ = (*ActorIt)->GetName();
+		UE_LOG(LogCamera, Display, TEXT("Camera Actor founded: %s"), *actor_name_);
+
+		// Check whether actor name is equal to auto-spawned "CameraActor_0"
+		// i.e. if Compare("CameraActor_0") returns 0
+//		if (!(*ActorIt)->GetName().Compare("CameraActor_0"))
+		if (!actor_name_.Compare("CameraActor_0"))
+		{
+			// Auto-spawned camera founded. Try to delete it
+			UE_LOG(LogCamera, Warning, TEXT("Default camera CameraActor_0 has been founded. Trying to delete..."));
+			if ((*ActorIt)->Destroy())
+			{
+				UE_LOG(LogCamera, Display, TEXT("... deleted successfuly"));
+			}
+			else
+			{
+				UE_LOG(LogCamera, Error, TEXT("... unable to delete"));
+			}
+			break;  // no need to continue with loop, there was only 1 camera with such nameID
+		}
+	}
+
+	UE_LOG(LogCamera, Display, TEXT("ADMDCameraPawn::BeginPlay() - exit"));
 }
 
 // Called every frame

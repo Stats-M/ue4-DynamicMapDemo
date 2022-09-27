@@ -15,12 +15,12 @@ ADMDHexGrid::ADMDHexGrid()
 	// CreateDefaultSubobject is preferred over AttachToComponent.
 	// Argument - component name that will be used by UE
 	// (it is not the same as displayed name of parent class).
-	ScenePtr = CreateDefaultSubobject<USceneComponent>(TEXT("Scene"));
+	Scene = CreateDefaultSubobject<USceneComponent>(TEXT("Scene"));
 
 	// Setting up hierarchy
 	// 1. Setting the root component for AActor
-	RootComponent = ScenePtr;
-	//ScenePtr->bUseAttachParentBound = true;  // Use parent actor bounds instead of its own (optimization)
+	RootComponent = Scene;
+	//Scene->bUseAttachParentBound = true;  // Use parent actor bounds instead of its own (optimization)
 	// 2. Setting subcomponents
 	// none yet
 }
@@ -137,7 +137,7 @@ void ADMDHexGrid::BeginPlay()
 																0.0f);
 				FRotator Rotation = FRotator(0.0f, 0.0f, 0.0f);
 				MapChunkActors[i] = World->SpawnActor<ADMDMapChunk>(ADMDMapChunk::StaticClass(), Location, Rotation, spawn_params_);
-
+				
 				// Try to optimize performance by ignoring overlapping events for the mesh
 				MapChunkActors[i]->bGenerateOverlapEventsDuringLevelStreaming = false;
 			}
@@ -157,10 +157,10 @@ void ADMDHexGrid::BeginPlay()
 			spawn_params_.Name = FName(actor_name_prefix_);
 
 			// Set actor location to be the same as Scene component
-			FVector Location = ScenePtr->GetComponentLocation();
+			FVector Location = Scene->GetComponentLocation();
 			//FRotator Rotation = FRotator(0.0f, 90.0f, 180.0f);
 			FRotator Rotation = FRotator(90.0f, 180.0f, 0.0f);        // Text "lays" in XY plane
-			//FRotator Rotation = ScenePtr->GetComponentRotation();
+			//FRotator Rotation = Scene->GetComponentRotation();
 			// Spawn actor of desired class
 			CoordTextActors[i] = World->SpawnActor<ATextRenderActor>(ATextRenderActor::StaticClass(), Location, Rotation, spawn_params_);
 

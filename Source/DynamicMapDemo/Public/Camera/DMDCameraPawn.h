@@ -23,6 +23,12 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/FloatingPawnMovement.h"
 
+// Headers needed to remove auto-spawned default Camera with 
+// nameID="CameraActor_0". See BeginPlay() code.
+// NB. Camera actor is dummy actor containing camera component
+//#include "Camera/PlayerCameraManager.h"
+#include "Camera/CameraActor.h"
+
 #include "DMDCameraPawn.generated.h"
 
 /**
@@ -44,23 +50,23 @@ protected:
 public:	
 	// Scene component (root for CameraPawn)
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-	USceneComponent* ScenePtr;  //Scene component (root for CameraPawn)
+	USceneComponent* Scene;  //Scene component (root for CameraPawn)
 
 	// StaticMesh (material sphere) component
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-	UStaticMeshComponent* MaterialSpherePtr;  //StaticMesh (material sphere) component
+	UStaticMeshComponent* MaterialSphere;  //StaticMesh (material sphere) component
 
 	// SpringArm component
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-	USpringArmComponent* SpringArmPtr;  //SpringArm component
+	USpringArmComponent* SpringArm;  //SpringArm component
 
 	// Camera component
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-	UCameraComponent* CameraPtr;  //Camera component
+	UCameraComponent* Camera;  //Camera component
 
 	// FloatingPawnMovement component
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-	UFloatingPawnMovement* FloatingPawnMovementPtr;  //FloatingPawnMovement component
+	UFloatingPawnMovement* FloatingPawnMovement;  //FloatingPawnMovement component
 
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

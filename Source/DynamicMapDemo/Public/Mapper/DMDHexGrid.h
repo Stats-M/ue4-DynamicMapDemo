@@ -38,7 +38,7 @@ public:
 
 	// Scene component (root for ProceduralMesh for it to have Transform)
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Grid Components")
-	USceneComponent* ScenePtr;  //Scene component (root for ProceduralMesh)
+	USceneComponent* Scene;  //Scene component (root for ProceduralMesh)
 
 #if !UE_BUILD_SHIPPING  // (UE_BUILD_SHIPPING - project Config==Shipping)
 	// Map chunk text labels are only available in editor,

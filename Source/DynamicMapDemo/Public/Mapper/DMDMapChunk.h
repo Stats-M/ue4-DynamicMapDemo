@@ -35,7 +35,7 @@ public:
 
 	// Scene component (root for ProceduralMesh for it to have Transform)
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-	USceneComponent* ScenePtr;  //Scene component (root for ProceduralMesh)
+	USceneComponent* Scene;  //Scene component (root for ProceduralMesh)
 		
     // ProceduralMesh component
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
@@ -72,7 +72,14 @@ protected:
 	// Init chunk-related variables with boundaries check
 	// It is a replacement for a parametrized constructor, 
 	// prohibited in UE4
-	void InitChunkVariables();
+	void InitChunkVariables(FVector ChunkCoordinates);
+
+	// Chunk global coordinates
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Chunk Data")
+	FVector GlobalChunkLocation
+	{
+		0.0f, 0.0f, 0.0f
+	};
 
 private:
 	// Watchdog to enforce InitChunkVariables() call

@@ -15,15 +15,15 @@ ADMDMapChunk::ADMDMapChunk()
 	// CreateDefaultSubobject is preferred over AttachToComponent.
 	// Argument - component name that will be used by UE
 	// (it is not the same as displayed name of parent class).
-	ScenePtr = CreateDefaultSubobject<USceneComponent>(TEXT("Scene"));
+	Scene = CreateDefaultSubobject<USceneComponent>(TEXT("Scene"));
 	ProceduralMeshPtr = CreateDefaultSubobject<UProceduralMeshComponent>(TEXT("ProceduralMeshChunk"));
 
 	// Setting up hierarchy
 	// 1. Setting the root component for AActor
-	RootComponent = ScenePtr;
-	ScenePtr->bUseAttachParentBound = true;  // Use parent actor bounds instead of its own (optimization)
+	RootComponent = Scene;
+	Scene->bUseAttachParentBound = true;  // Use parent actor bounds instead of its own (optimization)
 	// 2. Setting subcomponents
-	ProceduralMeshPtr->SetupAttachment(ScenePtr);
+	ProceduralMeshPtr->SetupAttachment(Scene);
 }
 
 // Called when the game mode starts or when spawned
@@ -36,8 +36,11 @@ void ADMDMapChunk::BeginPlay()
 	CreateMesh();
 }
 
-void ADMDMapChunk::InitChunkVariables()
-{}
+void ADMDMapChunk::InitChunkVariables(FVector ChunkCoordinates)
+{
+	// Save global chunk coordinates origin
+	GlobalChunkLocation = ChunkCoordinates;
+}
 
 // Called every frame
 void ADMDMapChunk::Tick(float DeltaTime)
