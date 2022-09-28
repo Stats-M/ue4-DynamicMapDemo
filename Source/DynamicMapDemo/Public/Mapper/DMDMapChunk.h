@@ -64,15 +64,15 @@ public:
 	// Recalculate mesh triangles data
 	void TriangulateMesh();
 
-protected:
-
-	// Called when the game mode starts or when spawned
-	virtual void BeginPlay() override;
-
 	// Init chunk-related variables with boundaries check
 	// It is a replacement for a parametrized constructor, 
 	// prohibited in UE4
 	void InitChunkVariables(FVector ChunkCoordinates);
+
+protected:
+
+	// Called when the game mode starts or when spawned
+	virtual void BeginPlay() override;
 
 	// Chunk global coordinates
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Chunk Data")
@@ -80,6 +80,13 @@ protected:
 	{
 		0.0f, 0.0f, 0.0f
 	};
+
+	// Linear array of this chunk cells. From left to right, from closest line to most far away.
+	// In UE4 coords that means from y=0 to *ChunkSizeY, 
+	// from x=0 to ChunkSizeX
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Grid Elements")
+	TArray<UDMDHexCell*> ChunkCells{};  //Linear array of UDMDHexCell* (this chunk cells)
+
 
 private:
 	// Watchdog to enforce InitChunkVariables() call

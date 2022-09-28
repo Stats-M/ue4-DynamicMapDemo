@@ -40,6 +40,9 @@ void ADMDMapChunk::InitChunkVariables(FVector ChunkCoordinates)
 {
 	// Save global chunk coordinates origin
 	GlobalChunkLocation = ChunkCoordinates;
+
+	// Initialization was done. May proceed further
+	bWasInitialized = true;
 }
 
 // Called every frame

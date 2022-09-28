@@ -25,6 +25,10 @@ ADMDHexGrid::ADMDHexGrid()
 	// none yet
 }
 
+// Creates a cell instance and adds it to cell array(s)
+void ADMDHexGrid::CreateCell(int32 X, int32 Y, int32 Z)
+{}
+
 // Called when the game mode starts or when spawned
 void ADMDHexGrid::BeginPlay()
 {
@@ -112,9 +116,9 @@ void ADMDHexGrid::BeginPlay()
 		// STEP 2. SPAWN MapChunk ACTORS
 		UE_LOG(LogHexGrid, Display, TEXT("ADMDHexGrid::BeginPlay() - init map chunks creation"));
 
-		MapChunkActors.Reserve(chunksCountTotal);                // Reserve memory.
-		MapChunkActors.SetNumZeroed(chunksCountTotal, false);    // Zero-init reserved memory, no shrink
-		UE_LOG(LogHexGrid, Display, TEXT("Map chunks array has %i elements, memory reserved"), MapChunkActors.Num());
+		MapChunks.Reserve(chunksCountTotal);                // Reserve memory.
+		MapChunks.SetNumZeroed(chunksCountTotal, false);    // Zero-init reserved memory, no shrink
+		UE_LOG(LogHexGrid, Display, TEXT("Map chunks array has %i elements, memory reserved"), MapChunks.Num());
 
 		i = 0;  // Reset counter
 		// Traverse all chunks
@@ -136,10 +140,10 @@ void ADMDHexGrid::BeginPlay()
 															   chunk_y * UDMDHexMetrics::OuterRadius * ChunkSizeY,
 																0.0f);
 				FRotator Rotation = FRotator(0.0f, 0.0f, 0.0f);
-				MapChunkActors[i] = World->SpawnActor<ADMDMapChunk>(ADMDMapChunk::StaticClass(), Location, Rotation, spawn_params_);
+				MapChunks[i] = World->SpawnActor<ADMDMapChunk>(ADMDMapChunk::StaticClass(), Location, Rotation, spawn_params_);
 				
 				// Try to optimize performance by ignoring overlapping events for the mesh
-				MapChunkActors[i]->bGenerateOverlapEventsDuringLevelStreaming = false;
+				MapChunks[i]->bGenerateOverlapEventsDuringLevelStreaming = false;
 			}
 		}
 

@@ -77,6 +77,13 @@ public:
 		-600.0f, -600.0f, 0.0f
 	};
 
+	// Font size for grid labels
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Grid Metrics")
+	float LabelFontSize = 24.0f;
+
+	// Creates a cell instance and adds it to cell array(s)
+	void CreateCell(int32 X, int32 Y, int32 Z);
+
 protected:
 	// Called when the game mode starts or when spawned
 	virtual void BeginPlay() override;
@@ -84,17 +91,13 @@ protected:
 	// Linear array of spawned map chunks. From left to right, from closest line to most far away.
 	// In UE4 coords that means from y=0 to ChunksAmountY, from x=0 to ChunksAmountX
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Grid Elements")
-	TArray<ADMDMapChunk*> MapChunkActors{};  //Linear array of DMDMapChunk* (map chunks)
+	TArray<ADMDMapChunk*> MapChunks{};  //Linear array of DMDMapChunk* (map chunks)
 
 	// Linear array of map cells. From left to right, from closest line to most far away.
 	// In UE4 coords that means from y=0 to ChunksAmountY*ChunkSizeY, 
 	// from x=0 to ChunksAmountX*ChunkSizeX
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Grid Elements")
 	TArray<UDMDHexCell*> GridCells{};  //Linear array of UDMDHexCell* (map cells)
-
-	// Font size for grid labels
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Grid Metrics")
-	float LabelFontSize = 24.0f;
 
 private:
 	// Total cells count (width)
@@ -107,5 +110,6 @@ private:
 	int32 chunksCountTotal = 0;
 
 	// Init grid-related variables with boundaries check
+	// (to be called in BeginPlay())
 	void InitGridVariables();
 };
