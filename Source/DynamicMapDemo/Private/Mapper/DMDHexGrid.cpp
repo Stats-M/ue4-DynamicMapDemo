@@ -26,13 +26,31 @@ ADMDHexGrid::ADMDHexGrid()
 }
 
 // Creates a cell instance and adds it to cell array(s)
-void ADMDHexGrid::CreateCell(int32 X, int32 Y, int32 Z)
-{}
+//  X,Y - cell indexes in rectangular grid
+//  Index - cell index in linear cells array
+void ADMDHexGrid::CreateCell(int32 X, int32 Y, int32 Index)
+{
+	// Calculate cell's global world coordinates from its indexes
+	FVector Position;
+	Position.X = X * UDMDHexMetrics::OuterRadius;
+	Position.Y = Y * UDMDHexMetrics::OuterRadius;
+	Position.Z = 0.0f;
+
+	GridCells[Index] = NewObject<UDMDHexCell>(UDMDHexCell::StaticClass());
+
+	// Apply global coordinates shift (grid start origin) here.
+	// Proc: we do not require to do any calculations later
+	// Cons: we loose ability to change grid origin on the fly.
+	GridCells[Index]->Location = Position + GridStartLocation;
+
+}
 
 // Called when the game mode starts or when spawned
 void ADMDHexGrid::BeginPlay()
 {
 	Super::BeginPlay();
+
+	UE_LOG(LogHexGrid, Display, TEXT("ADMDHexGrid::BeginPlay() - start"));
 
 	// Init map variables we will work with
 	InitGridVariables();
@@ -46,7 +64,7 @@ void ADMDHexGrid::BeginPlay()
 
 		// STEP 1. SPAWN TextRender ACTORS
 #if (!UE_BUILD_SHIPPING)
-		UE_LOG(LogHexGrid, Display, TEXT("ADMDHexGrid - init cell labels creation"));
+		UE_LOG(LogHexGrid, Display, TEXT("Init cell labels creation"));
 
 		// This section creates independent actors, not subobjects.
 		// That's why their spawn placed here and not in ADMDHexGrid() Ctor
@@ -91,7 +109,8 @@ void ADMDHexGrid::BeginPlay()
 															  grid_x,
 															  grid_y);
 						TextRenderComponentPtr->SetWorldSize(LabelFontSize);    // Set font size
-						TextRenderComponentPtr->SetText(actor_text_);
+						// SetText(FString) is deprecated. Use SetText(FText)
+						TextRenderComponentPtr->SetText(FText::FromString(actor_text_));
 					}
 					else
 					{
@@ -114,7 +133,7 @@ void ADMDHexGrid::BeginPlay()
 #endif
 
 		// STEP 2. SPAWN MapChunk ACTORS
-		UE_LOG(LogHexGrid, Display, TEXT("ADMDHexGrid::BeginPlay() - init map chunks creation"));
+		UE_LOG(LogHexGrid, Display, TEXT("Init map chunks creation"));
 
 		MapChunks.Reserve(chunksCountTotal);                // Reserve memory.
 		MapChunks.SetNumZeroed(chunksCountTotal, false);    // Zero-init reserved memory, no shrink
@@ -146,6 +165,13 @@ void ADMDHexGrid::BeginPlay()
 				MapChunks[i]->bGenerateOverlapEventsDuringLevelStreaming = false;
 			}
 		}
+
+		// STEP 3. Reserve memory for grid cells
+		UE_LOG(LogHexGrid, Display, TEXT("Reserve memory for grid cells"));
+
+		GridCells.Reserve(cellsCountTotal);                // Reserve memory.
+		GridCells.SetNumZeroed(cellsCountTotal, false);    // Zero-init reserved memory, no shrink
+		UE_LOG(LogHexGrid, Display, TEXT("Grid cells array has %i elements, memory reserved"), GridCells.Num());
 
 		/* OLD TEST CODE
 		for (int i = 0; i < cellsCountTotal; ++i)
@@ -206,6 +232,8 @@ void ADMDHexGrid::BeginPlay()
 	}
 	*/
 
+	UE_LOG(LogHexGrid, Display, TEXT("ADMDHexGrid::BeginPlay() - exit"));
+
 }
 
 // Called every frame
@@ -247,4 +275,10 @@ void ADMDHexGrid::InitGridVariables()
 	cellsCountY = ChunksAmountY * ChunkSizeY;
 	cellsCountTotal = cellsCountX * cellsCountY;
 	chunksCountTotal = ChunksAmountX * ChunksAmountY;
+
+	// Adjust cell labels location to start somewhere
+	// near cell center: half cell radius up (X axis)
+	// and quater cell radius left (Y axis)
+	LabelsStartLocation.X += UDMDHexMetrics::OuterRadius * 0.5f;
+	LabelsStartLocation.Y -= UDMDHexMetrics::OuterRadius * 0.25f;
 }

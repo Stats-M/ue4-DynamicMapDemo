@@ -74,7 +74,7 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Grid Metrics")
 	FVector GridStartLocation
 	{
-		-600.0f, -600.0f, 0.0f
+		-200.0f, -200.0f, 0.0f
 	};
 
 	// Font size for grid labels
@@ -82,6 +82,7 @@ public:
 	float LabelFontSize = 24.0f;
 
 	// Creates a cell instance and adds it to cell array(s)
+    // X,Y,Z are cell's indexes in rectangular 3D array
 	void CreateCell(int32 X, int32 Y, int32 Z);
 
 protected:

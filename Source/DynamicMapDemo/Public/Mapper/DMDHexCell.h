@@ -18,4 +18,7 @@ class DYNAMICMAPDEMO_API UDMDHexCell : public UObject
 {
 	GENERATED_BODY()
 	
+public:
+	// Cell world global coordinates
+	FVector Location{};
 };
