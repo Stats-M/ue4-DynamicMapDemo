@@ -16,6 +16,8 @@ ADMDHexGrid::ADMDHexGrid()
 	// Argument - component name that will be used by UE
 	// (it is not the same as displayed name of parent class).
 	Scene = CreateDefaultSubobject<USceneComponent>(TEXT("Scene"));
+	// HexGrid is a static actor. Camera flies over it.
+	Scene->Mobility = EComponentMobility::Static;
 
 	// Setting up hierarchy
 	// 1. Setting the root component for AActor
