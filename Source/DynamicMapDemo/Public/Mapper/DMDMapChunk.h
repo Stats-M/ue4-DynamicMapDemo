@@ -67,16 +67,17 @@ public:
 	// Init chunk-related variables with boundaries check
 	// It is a replacement for a parametrized constructor, 
 	// prohibited in UE4
-	void InitChunkVariables(FVector ChunkCoordinates);
+	void InitChunkVariables();
 
 protected:
 
 	// Called when the game mode starts or when spawned
 	virtual void BeginPlay() override;
 
-	// Chunk global coordinates
+	// Chunk global coordinates (cached). Used for calculation
+	// offsets for all triangles of Procedural Mesh
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Chunk Data")
-	FVector GlobalChunkLocation
+	FVector ChunkGlobalLocation
 	{
 		0.0f, 0.0f, 0.0f
 	};
@@ -87,9 +88,4 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Grid Elements")
 	TArray<UDMDHexCell*> ChunkCells{};  //Linear array of UDMDHexCell* (this chunk cells)
 
-
-private:
-	// Watchdog to enforce InitChunkVariables() call
-	// before any action with mesh can be permitted
-	bool bWasInitialized = false;
 };

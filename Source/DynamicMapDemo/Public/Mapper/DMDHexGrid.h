@@ -70,7 +70,7 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Grid Metrics")
 	int32 ChunkSizeY = 5;
 
-	// Set start actor location (oriin)
+	// Set start actor location (origin)
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Grid Metrics")
 	FVector GridStartLocation
 	{
@@ -113,4 +113,24 @@ private:
 	// Init grid-related variables with boundaries check
 	// (to be called in BeginPlay())
 	void InitGridVariables();
+
+public:
+	// ***** TESTS SECTION *****
+	// Functions used for testing, should be done via
+	// can replace with #if !UE_BUILD_SHIPPING instead
+#if WITH_DEV_AUTOMATION_TESTS
+	void DummyInitVariables()
+	{
+		InitGridVariables();
+	};
+	int32 GetCellsCountX() const
+	{
+		return cellsCountX;
+	};
+	int32 GetCellsCountY() const
+	{
+		return cellsCountY;
+	};
+#endif
+
 };

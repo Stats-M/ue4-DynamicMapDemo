@@ -30,26 +30,27 @@ ADMDMapChunk::ADMDMapChunk()
 void ADMDMapChunk::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	InitChunkVariables();
+
 	ClearMeshData();
 
-	CreateMesh();
+	//CreateMesh();
+	TriangulateMesh();
 }
 
-void ADMDMapChunk::InitChunkVariables(FVector ChunkCoordinates)
+void ADMDMapChunk::InitChunkVariables()
 {
-	// Save global chunk coordinates origin
-	GlobalChunkLocation = ChunkCoordinates;
-
-	// Initialization was done. May proceed further
-	bWasInitialized = true;
+	// Save this chunk global coordinates (used for triangles
+	// coordinates calculation) from the root (Scene) component
+	ChunkGlobalLocation = RootComponent->GetComponentLocation();
+	//UE_LOG(LogHexGrid, Display, TEXT("TODO Output this chunk coordinates (origin)"));
 }
 
 // Called every frame
 void ADMDMapChunk::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
 void ADMDMapChunk::ClearMeshData()
@@ -70,10 +71,10 @@ void ADMDMapChunk::CreateMesh()
 		for (int y = 0; y < 5; ++y)
 		{
 			// 1. Vertices of a squad
-			Vertices.Add(FVector(-200.0f + x * 200.0f, -200.0f + y * 200.0f, 0.0f));
-			Vertices.Add(FVector(-200.0f + x * 200.0f, -200.0f + (y + 1) * 200.0f, 0.0f));
-			Vertices.Add(FVector(-200.0f + (x + 1) * 200.0f, -200.0f + (y + 1) * 200.0f, 0.0f));
-			Vertices.Add(FVector(-200.0f + (x + 1) * 200.0f, -200.0f + y * 200.0f, 0.0f));
+			Vertices.Add(FVector(-200.0f + x * 200.0f, -200.0f + y * 200.0f, -10.0f));
+			Vertices.Add(FVector(-200.0f + x * 200.0f, -200.0f + (y + 1) * 200.0f, -10.0f));
+			Vertices.Add(FVector(-200.0f + (x + 1) * 200.0f, -200.0f + (y + 1) * 200.0f, -10.0f));
+			Vertices.Add(FVector(-200.0f + (x + 1) * 200.0f, -200.0f + y * 200.0f, -10.0f));
 
 			// 2. Triangles
 			Triangles.Add(0 + (x * 20) + y * 4);
@@ -156,4 +157,36 @@ void ADMDMapChunk::CreateMesh()
 }
 
 void ADMDMapChunk::TriangulateMesh()
-{}
+{
+	for (int x = 0; x < 5; ++x)
+	{
+		for (int y = 0; y < 5; ++y)
+		{
+			// 1. Vertices of a squad
+			Vertices.Add(FVector(x * UDMDHexMetrics::OuterRadius, y * UDMDHexMetrics::OuterRadius, 0.0f) + ChunkGlobalLocation);
+			Vertices.Add(FVector(x * UDMDHexMetrics::OuterRadius, (y + 1) * UDMDHexMetrics::OuterRadius, 0.0f) + ChunkGlobalLocation);
+			Vertices.Add(FVector((x + 1) * UDMDHexMetrics::OuterRadius, (y + 1) * UDMDHexMetrics::OuterRadius, 0.0f) + ChunkGlobalLocation);
+			Vertices.Add(FVector((x + 1) * UDMDHexMetrics::OuterRadius, y * UDMDHexMetrics::OuterRadius, 0.0f) + ChunkGlobalLocation);
+
+			// 2. Triangles
+			Triangles.Add(0 + (x * 20) + y * 4);
+			Triangles.Add(1 + (x * 20) + y * 4);
+			Triangles.Add(3 + (x * 20) + y * 4);
+
+			Triangles.Add(1 + (x * 20) + y * 4);
+			Triangles.Add(2 + (x * 20) + y * 4);
+			Triangles.Add(3 + (x * 20) + y * 4);
+
+			// 3. UVs
+			UVs.Add(FVector2D(0.0f, 0.0f));
+			UVs.Add(FVector2D(0.0f, 1.0f));
+			UVs.Add(FVector2D(1.0f, 1.0f));
+			UVs.Add(FVector2D(1.0f, 0.0f));
+		}
+	}
+
+	if (ProceduralMeshPtr)
+	{
+		ProceduralMeshPtr->CreateMeshSection_LinearColor(0, Vertices, Triangles, Normals, UVs, VertexLinearColors, Tangents, true);
+	}
+}
