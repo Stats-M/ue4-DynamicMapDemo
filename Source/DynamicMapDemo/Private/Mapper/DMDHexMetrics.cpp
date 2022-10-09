@@ -32,13 +32,13 @@ const TArray<FVector2D> UDMDHexMetrics::HexMetrics2D =
     FVector2D(0.0f, UDMDHexMetrics::OuterRadius)  // last vertice repeats the first one
 };
 
-const int32 UDMDHexMetrics::ChunksAmountXMax = 25;
+const int32 UDMDHexMetrics::TotalChunkCountWidthMax = 25;
 
-const int32 UDMDHexMetrics::ChunksAmountYMax = 20;
+const int32 UDMDHexMetrics::TotalChunkCountHeightMax = 20;
 
 const int32 UDMDHexMetrics::ChunkSizeXMax = 8;
 
-const int32 UDMDHexMetrics::ChunkSizeYMax = 8;
+const int32 UDMDHexMetrics::ChunkSizeHeightMax = 8;
 
 UDMDHexMetrics::UDMDHexMetrics()
 {}

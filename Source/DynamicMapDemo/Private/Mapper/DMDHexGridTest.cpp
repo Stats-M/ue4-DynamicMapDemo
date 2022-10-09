@@ -34,12 +34,12 @@ bool FHexGridInitValuesTest::RunTest(const FString& Parameters)
 		if (Grid)
 		{
 			Grid->DummyInitVariables();
-			if (Grid->GetCellsCountX() == 0)
+			if (Grid->GetCellsTotalCountHeight() == 0)
 			{
 				// If we call AddError, the test will automatically fail
 				AddError(TEXT("Cells count along X axis is 0. Must be positive."));
 			}
-			if (Grid->GetCellsCountY() == 0)
+			if (Grid->GetCellsTotalCountWidth() == 0)
 			{
 				// If we call AddError, the test will automatically fail
 				AddError(TEXT("Cells count along Y axis is 0. Must be positive."));
@@ -72,5 +72,7 @@ bool FHexGridInitValuesTest::RunTest(const FString& Parameters)
 	// We can return "false" to fail the error, but  
 	return true;
 }
+
+
 
 #endif //WITH_DEV_AUTOMATION_TESTS

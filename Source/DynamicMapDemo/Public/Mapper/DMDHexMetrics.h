@@ -28,11 +28,11 @@ public:
 	static const TArray<FVector2D> HexMetrics2D;
 
 	// Maximum chunks amount in the map (map width)
-	static const int32 ChunksAmountXMax;
+	static const int32 TotalChunkCountWidthMax;
 	// Maximum chunks amount in the map (map height)
-	static const int32 ChunksAmountYMax;
+	static const int32 TotalChunkCountHeightMax;
 	// Maximum chunk width
 	static const int32 ChunkSizeXMax;
 	// Maximum chunk height
-	static const int32 ChunkSizeYMax;
+	static const int32 ChunkSizeHeightMax;
 };

@@ -22,7 +22,7 @@
  * of small map chunks.
  * Contains:
  *  - all text labels for all chunks
- *  - all cells data
+ *  - all cells data (chunks get pointers to them)
  */
 UCLASS(BlueprintType, Blueprintable)
 class DYNAMICMAPDEMO_API ADMDHexGrid : public AActor
@@ -56,11 +56,11 @@ public:
 
 	// Amount of chunks in the grid (grid width)
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Grid Metrics")
-	int32 ChunksAmountX = 1;
+	int32 TotalChunkCountWidth = 1;
 
 	// Amount of chunks in the grid (grid height)
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Grid Metrics")
-	int32 ChunksAmountY = 1;
+	int32 TotalChunkCountHeight = 1;
 
 	// Chunk width (preferrably even integer)
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Grid Metrics")
@@ -68,7 +68,7 @@ public:
 
 	// Chunk height (preferrably even integer)
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Grid Metrics")
-	int32 ChunkSizeY = 5;
+	int32 ChunkSizeHeight = 5;
 
 	// Set start actor location (origin)
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Grid Metrics")
@@ -90,21 +90,21 @@ protected:
 	virtual void BeginPlay() override;
 
 	// Linear array of spawned map chunks. From left to right, from closest line to most far away.
-	// In UE4 coords that means from y=0 to ChunksAmountY, from x=0 to ChunksAmountX
+	// In UE4 coords that means from y=0 to TotalChunkCountWidth, from x=0 to TotalChunkCountHeight
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Grid Elements")
 	TArray<ADMDMapChunk*> MapChunks{};  //Linear array of DMDMapChunk* (map chunks)
 
 	// Linear array of map cells. From left to right, from closest line to most far away.
-	// In UE4 coords that means from y=0 to ChunksAmountY*ChunkSizeY, 
-	// from x=0 to ChunksAmountX*ChunkSizeX
+	// In UE4 coords that means from y=0 to TotalChunkCountWidth*ChunkSizeWidth, 
+	// from x=0 to TotalChunkCountHeight*ChunkSizeHeight
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Grid Elements")
 	TArray<UDMDHexCell*> GridCells{};  //Linear array of UDMDHexCell* (map cells)
 
 private:
 	// Total cells count (width)
-	int32 cellsCountX = 0;
+	int32 cellsTotalCountWidth = 0;
 	// Total cells count (height)
-	int32 cellsCountY = 0;
+	int32 cellsTotalCountHeight = 0;
 	// Total cells on map
 	int32 cellsCountTotal = 0;
 	// Total chunks on map
@@ -114,22 +114,22 @@ private:
 	// (to be called in BeginPlay())
 	void InitGridVariables();
 
+// ***** TESTS SECTION *****
 public:
-	// ***** TESTS SECTION *****
-	// Functions used for testing, should be done via
-	// can replace with #if !UE_BUILD_SHIPPING instead
+	// Functions used for testing
+	// can replace guards with #if !UE_BUILD_SHIPPING instead
 #if WITH_DEV_AUTOMATION_TESTS
 	void DummyInitVariables()
 	{
 		InitGridVariables();
 	};
-	int32 GetCellsCountX() const
+	int32 GetCellsTotalCountWidth() const
 	{
-		return cellsCountX;
+		return cellsTotalCountWidth;
 	};
-	int32 GetCellsCountY() const
+	int32 GetCellsTotalCountHeight() const
 	{
-		return cellsCountY;
+		return cellsTotalCountHeight;
 	};
 #endif
 

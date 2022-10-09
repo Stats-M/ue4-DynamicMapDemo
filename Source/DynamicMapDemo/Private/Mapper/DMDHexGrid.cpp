@@ -77,9 +77,9 @@ void ADMDHexGrid::BeginPlay()
 
 		i = 0;  // Reset counter
 		// Traverse all cells (square array)
-		for (int grid_x = 0; grid_x < cellsCountX; ++grid_x)
+		for (int grid_x = 0; grid_x < cellsTotalCountWidth; ++grid_x)
 		{
-			for (int grid_y = 0; grid_y < cellsCountY; ++grid_y)
+			for (int grid_y = 0; grid_y < cellsTotalCountHeight; ++grid_y)
 			{
 				// Spawn actor
 				FActorSpawnParameters spawn_params_;
@@ -91,8 +91,8 @@ void ADMDHexGrid::BeginPlay()
 				spawn_params_.Name = FName(actor_name_);
 
 				// Location is a sum of current cell location and label origin
-				FVector Location = LabelsStartLocation + FVector(grid_x * UDMDHexMetrics::OuterRadius,
-																 grid_y * UDMDHexMetrics::OuterRadius,
+				FVector Location = LabelsStartLocation + FVector(grid_x * UDMDHexMetrics::OuterRadius * 2,
+																 grid_y * UDMDHexMetrics::OuterRadius * 2,
 																 0.0f);
 				FRotator Rotation = FRotator(90.0f, 180.0f, 0.0f);        // Text "lays" in XY plane
 				CoordTextActors[i] = World->SpawnActor<ATextRenderActor>(ATextRenderActor::StaticClass(), Location, Rotation, spawn_params_);
@@ -143,9 +143,9 @@ void ADMDHexGrid::BeginPlay()
 
 		i = 0;  // Reset counter
 		// Traverse all chunks
-		for (int chunk_x = 0; chunk_x < ChunksAmountX; ++chunk_x)
+		for (int chunk_x = 0; chunk_x < TotalChunkCountWidth; ++chunk_x)
 		{
-			for (int chunk_y = 0; chunk_y < ChunksAmountY; ++chunk_y)
+			for (int chunk_y = 0; chunk_y < TotalChunkCountHeight; ++chunk_y)
 			{
 				// Spawn actor
 				FActorSpawnParameters spawn_params_;
@@ -158,7 +158,7 @@ void ADMDHexGrid::BeginPlay()
 
 				// Location is a sum of grid origin and each chunk location
 				FVector Location = GridStartLocation + FVector(chunk_x * UDMDHexMetrics::OuterRadius * ChunkSizeX,
-															   chunk_y * UDMDHexMetrics::OuterRadius * ChunkSizeY,
+															   chunk_y * UDMDHexMetrics::OuterRadius * ChunkSizeHeight,
 																0.0f);
 				FRotator Rotation = FRotator(0.0f, 0.0f, 0.0f);
 				MapChunks[i] = World->SpawnActor<ADMDMapChunk>(ADMDMapChunk::StaticClass(), Location, Rotation, spawn_params_);
@@ -248,16 +248,16 @@ void ADMDHexGrid::Tick(float DeltaTime)
 void ADMDHexGrid::InitGridVariables()
 {
 	// Enforce limits for map variables before spawning actors
-	if (ChunksAmountX > UDMDHexMetrics::ChunksAmountXMax)
+	if (TotalChunkCountWidth > UDMDHexMetrics::TotalChunkCountWidthMax)
 	{
-		UE_LOG(LogHexGrid, Warning, TEXT("Chunks amount (width) %i exceeds the limit. Fixed."), ChunksAmountX);
-		ChunksAmountX = UDMDHexMetrics::ChunksAmountXMax;
+		UE_LOG(LogHexGrid, Warning, TEXT("Chunks amount (width) %i exceeds the limit. Fixed."), TotalChunkCountWidth);
+		TotalChunkCountWidth = UDMDHexMetrics::TotalChunkCountWidthMax;
 	}
 
-	if (ChunksAmountY > UDMDHexMetrics::ChunksAmountYMax)
+	if (TotalChunkCountHeight > UDMDHexMetrics::TotalChunkCountHeightMax)
 	{
-		UE_LOG(LogHexGrid, Warning, TEXT("Chunks amount (height) %i exceeds the limit. Fixed."), ChunksAmountY);
-		ChunksAmountY = UDMDHexMetrics::ChunksAmountYMax;
+		UE_LOG(LogHexGrid, Warning, TEXT("Chunks amount (height) %i exceeds the limit. Fixed."), TotalChunkCountHeight);
+		TotalChunkCountHeight = UDMDHexMetrics::TotalChunkCountHeightMax;
 	}
 
 	if (ChunkSizeX > UDMDHexMetrics::ChunkSizeXMax)
@@ -266,17 +266,17 @@ void ADMDHexGrid::InitGridVariables()
 		ChunkSizeX = UDMDHexMetrics::ChunkSizeXMax;
 	}
 
-	if (ChunkSizeY > UDMDHexMetrics::ChunkSizeYMax)
+	if (ChunkSizeHeight > UDMDHexMetrics::ChunkSizeHeightMax)
 	{
-		UE_LOG(LogHexGrid, Warning, TEXT("Chunks size (height) %i exceeds the limit. Fixed."), ChunkSizeY);
-		ChunkSizeY = UDMDHexMetrics::ChunkSizeYMax;
+		UE_LOG(LogHexGrid, Warning, TEXT("Chunks size (height) %i exceeds the limit. Fixed."), ChunkSizeHeight);
+		ChunkSizeHeight = UDMDHexMetrics::ChunkSizeHeightMax;
 	}
 
 	// Init misc map variables
-	cellsCountX = ChunksAmountX * ChunkSizeX;
-	cellsCountY = ChunksAmountY * ChunkSizeY;
-	cellsCountTotal = cellsCountX * cellsCountY;
-	chunksCountTotal = ChunksAmountX * ChunksAmountY;
+	cellsTotalCountWidth = TotalChunkCountWidth * ChunkSizeX;
+	cellsTotalCountHeight = TotalChunkCountHeight * ChunkSizeHeight;
+	cellsCountTotal = cellsTotalCountWidth * cellsTotalCountHeight;
+	chunksCountTotal = TotalChunkCountWidth * TotalChunkCountHeight;
 
 	// Adjust cell labels location to start somewhere
 	// near cell center: half cell radius up (X axis)

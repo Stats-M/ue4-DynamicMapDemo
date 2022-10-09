@@ -83,7 +83,7 @@ protected:
 	};
 
 	// Linear array of this chunk cells. From left to right, from closest line to most far away.
-	// In UE4 coords that means from y=0 to *ChunkSizeY, 
+	// In UE4 coords that means from y=0 to *ChunkSizeHeight, 
 	// from x=0 to ChunkSizeX
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Grid Elements")
 	TArray<UDMDHexCell*> ChunkCells{};  //Linear array of UDMDHexCell* (this chunk cells)
