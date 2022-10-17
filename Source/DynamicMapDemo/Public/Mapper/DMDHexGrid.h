@@ -19,7 +19,7 @@
 
 /**
  * Class defines a hexagonal map, consisted from a set 
- * of small map chunks.
+ * of small map chunks (each one with ProceduralMesh actor).
  * Contains:
  *  - all text labels for all chunks
  *  - all cells data (chunks get pointers to them)
@@ -36,9 +36,9 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	// Scene component (root for ProceduralMesh for it to have Transform)
+	// Scene component (root component) (for having Transform properties)
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Grid Components")
-	USceneComponent* Scene;  //Scene component (root for ProceduralMesh)
+	USceneComponent* Scene;  //Scene component
 
 #if !UE_BUILD_SHIPPING  // (UE_BUILD_SHIPPING - project Config==Shipping)
 	// Map chunk text labels are only available in editor,
@@ -47,7 +47,7 @@ public:
 	TArray<ATextRenderActor*> CoordTextActors{};  //Array of TextRenderActors (contains private class UTextRenderComponent)
 #endif
 
-	// Set start text labels location (origin)
+	// Defines origin location for text labels
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Grid Metrics")
 	FVector LabelsStartLocation
 	{
@@ -56,21 +56,21 @@ public:
 
 	// Amount of chunks in the grid (grid width)
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Grid Metrics")
-	int32 TotalChunkCountWidth = 1;
+	int32 TotalChunksCountWidth = 1;
 
 	// Amount of chunks in the grid (grid height)
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Grid Metrics")
-	int32 TotalChunkCountHeight = 1;
+	int32 TotalChunksCountHeight = 1;
 
-	// Chunk width (preferrably even integer)
+	// Chunk height (number of hexes) (even integer)
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Grid Metrics")
-	int32 ChunkSizeX = 5;
+	int32 ChunkSizeHeight = 6;
 
-	// Chunk height (preferrably even integer)
+	// Chunk width (number of hexes) (even integer)
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Grid Metrics")
-	int32 ChunkSizeHeight = 5;
+	int32 ChunkSizeWidth = 6;
 
-	// Set start actor location (origin)
+	// Defines origin location for grid
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Grid Metrics")
 	FVector GridStartLocation
 	{
@@ -114,11 +114,12 @@ private:
 	// (to be called in BeginPlay())
 	void InitGridVariables();
 
+
 // ***** TESTS SECTION *****
-public:
-	// Functions used for testing
-	// can replace guards with #if !UE_BUILD_SHIPPING instead
+// Functions used for testing
+// can replace guards with #if !UE_BUILD_SHIPPING instead
 #if WITH_DEV_AUTOMATION_TESTS
+public:
 	void DummyInitVariables()
 	{
 		InitGridVariables();

@@ -156,32 +156,39 @@ void ADMDMapChunk::CreateMesh()
 */
 }
 
+
+// Process all hexes in this chunk, one by one
 void ADMDMapChunk::TriangulateMesh()
 {
 	for (int x = 0; x < 5; ++x)
 	{
 		for (int y = 0; y < 5; ++y)
 		{
-			// 1. Vertices of a squad
-			Vertices.Add(FVector(x * UDMDHexMetrics::OuterRadius, y * UDMDHexMetrics::OuterRadius, 0.0f) + ChunkGlobalLocation);
-			Vertices.Add(FVector(x * UDMDHexMetrics::OuterRadius, (y + 1) * UDMDHexMetrics::OuterRadius, 0.0f) + ChunkGlobalLocation);
-			Vertices.Add(FVector((x + 1) * UDMDHexMetrics::OuterRadius, (y + 1) * UDMDHexMetrics::OuterRadius, 0.0f) + ChunkGlobalLocation);
-			Vertices.Add(FVector((x + 1) * UDMDHexMetrics::OuterRadius, y * UDMDHexMetrics::OuterRadius, 0.0f) + ChunkGlobalLocation);
+			// 0. Hex center. Uses UE coordinates (Forward, Right, Up instead of X,Y,Z)
+			// UE X (Forward) axis (real Y axis): 
+			//   Global chunk location + OuterRadius (1st offset) + 2*x*OuterRadius (hex height)
+			// UE Y (Right) axis (real X axis): 
+			//   Global chunk location + 0.5*InnerRadius (1st offset) + 2*y*InnerRadius (hex width)
+			FVector HexCenter_{
+				ChunkGlobalLocation.X + UDMDHexMetrics::OuterRadius + 2.0f * x * UDMDHexMetrics::OuterRadius,
+				ChunkGlobalLocation.Y + 0.5f * UDMDHexMetrics::InnerRadius + 2.0f * y * UDMDHexMetrics::InnerRadius,
+				ChunkGlobalLocation.Z
+			};
+
+			// 1. Vertices of the current hex
+			Vertices.Add(HexCenter_);
+			Vertices.Add(HexCenter_ + UDMDHexMetrics::HexMetrics3D[0]);
+			Vertices.Add(HexCenter_ + UDMDHexMetrics::HexMetrics3D[1]);
 
 			// 2. Triangles
-			Triangles.Add(0 + (x * 20) + y * 4);
-			Triangles.Add(1 + (x * 20) + y * 4);
-			Triangles.Add(3 + (x * 20) + y * 4);
-
-			Triangles.Add(1 + (x * 20) + y * 4);
-			Triangles.Add(2 + (x * 20) + y * 4);
-			Triangles.Add(3 + (x * 20) + y * 4);
+			Triangles.Add(0 + (x * 15) + y * 3);
+			Triangles.Add(1 + (x * 15) + y * 3);
+			Triangles.Add(2 + (x * 15) + y * 3);
 
 			// 3. UVs
 			UVs.Add(FVector2D(0.0f, 0.0f));
 			UVs.Add(FVector2D(0.0f, 1.0f));
 			UVs.Add(FVector2D(1.0f, 1.0f));
-			UVs.Add(FVector2D(1.0f, 0.0f));
 		}
 	}
 

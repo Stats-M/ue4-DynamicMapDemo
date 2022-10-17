@@ -35,7 +35,7 @@ void ADMDHexGrid::CreateCell(int32 X, int32 Y, int32 Index)
 	// Calculate cell's global world coordinates from its indexes
 	FVector Position;
 	Position.X = X * UDMDHexMetrics::OuterRadius;
-	Position.Y = Y * UDMDHexMetrics::OuterRadius;
+	Position.Y = Y * UDMDHexMetrics::InnerRadius;
 	Position.Z = 0.0f;
 
 	GridCells[Index] = NewObject<UDMDHexCell>(UDMDHexCell::StaticClass());
@@ -77,11 +77,12 @@ void ADMDHexGrid::BeginPlay()
 
 		i = 0;  // Reset counter
 		// Traverse all cells (square array)
-		for (int grid_x = 0; grid_x < cellsTotalCountWidth; ++grid_x)
+		// NB: grid_x and grid_y are referred to Cartesian [X,Y] axis, not UE [Forward,Right] axis
+		for (int grid_y = 0; grid_y < cellsTotalCountHeight; ++grid_y)
 		{
-			for (int grid_y = 0; grid_y < cellsTotalCountHeight; ++grid_y)
+			for (int grid_x = 0; grid_x < cellsTotalCountWidth; ++grid_x)
 			{
-				// Spawn actor
+				// Spawn Label actor
 				FActorSpawnParameters spawn_params_;
 				spawn_params_.OverrideLevel = World->GetCurrentLevel();
 				FString actor_name_ = FString::Printf(TEXT("CellCoordsActor-%04d-%04d"),
@@ -90,9 +91,9 @@ void ADMDHexGrid::BeginPlay()
 				UE_LOG(LogHexGrid, Display, TEXT("Generated actor nameID: %s"), *actor_name_);
 				spawn_params_.Name = FName(actor_name_);
 
-				// Location is a sum of current cell location and label origin
-				FVector Location = LabelsStartLocation + FVector(grid_x * UDMDHexMetrics::OuterRadius * 2,
-																 grid_y * UDMDHexMetrics::OuterRadius * 2,
+				// Location is a sum of labels origin and current cell location offset
+				FVector Location = LabelsStartLocation + FVector(grid_y * UDMDHexMetrics::OuterRadius * 2 + UDMDHexMetrics::OuterRadius,
+																 grid_x * UDMDHexMetrics::InnerRadius * 2 + UDMDHexMetrics::InnerRadius,
 																 0.0f);
 				FRotator Rotation = FRotator(90.0f, 180.0f, 0.0f);        // Text "lays" in XY plane
 				CoordTextActors[i] = World->SpawnActor<ATextRenderActor>(ATextRenderActor::StaticClass(), Location, Rotation, spawn_params_);
@@ -142,10 +143,11 @@ void ADMDHexGrid::BeginPlay()
 		UE_LOG(LogHexGrid, Display, TEXT("Map chunks array has %i elements, memory reserved"), MapChunks.Num());
 
 		i = 0;  // Reset counter
-		// Traverse all chunks
-		for (int chunk_x = 0; chunk_x < TotalChunkCountWidth; ++chunk_x)
+		// Traverse all chunks.
+		// NB: chunk_x and chunk_y are referred to Cartesian [X,Y] axis, not UE [Forward,Right] axis
+		for (int chunk_y = 0; chunk_y < TotalChunksCountHeight; ++chunk_y)
 		{
-			for (int chunk_y = 0; chunk_y < TotalChunkCountHeight; ++chunk_y)
+			for (int chunk_x = 0; chunk_x < TotalChunksCountWidth; ++chunk_x)
 			{
 				// Spawn actor
 				FActorSpawnParameters spawn_params_;
@@ -156,15 +158,17 @@ void ADMDHexGrid::BeginPlay()
 				UE_LOG(LogHexGrid, Display, TEXT("Generated actor nameID: %s"), *actor_name_);
 				spawn_params_.Name = FName(actor_name_);
 
-				// Location is a sum of grid origin and each chunk location
-				FVector Location = GridStartLocation + FVector(chunk_x * UDMDHexMetrics::OuterRadius * ChunkSizeX,
-															   chunk_y * UDMDHexMetrics::OuterRadius * ChunkSizeHeight,
-																0.0f);
+				// Location is a sum of grid origin and chunk location offset
+				FVector Location = GridStartLocation + FVector(chunk_y * UDMDHexMetrics::OuterRadius * 1.75f * ChunkSizeHeight,
+															   chunk_x * UDMDHexMetrics::InnerRadius * 2.0f * ChunkSizeWidth,
+															   0.0f);
 				FRotator Rotation = FRotator(0.0f, 0.0f, 0.0f);
 				MapChunks[i] = World->SpawnActor<ADMDMapChunk>(ADMDMapChunk::StaticClass(), Location, Rotation, spawn_params_);
 				
 				// Try to optimize performance by ignoring overlapping events for the mesh
 				MapChunks[i]->bGenerateOverlapEventsDuringLevelStreaming = false;
+
+				++i;  // Advance linear counter to the next element
 			}
 		}
 
@@ -248,22 +252,16 @@ void ADMDHexGrid::Tick(float DeltaTime)
 void ADMDHexGrid::InitGridVariables()
 {
 	// Enforce limits for map variables before spawning actors
-	if (TotalChunkCountWidth > UDMDHexMetrics::TotalChunkCountWidthMax)
+	if (TotalChunksCountWidth > UDMDHexMetrics::TotalChunksCountWidthMax)
 	{
-		UE_LOG(LogHexGrid, Warning, TEXT("Chunks amount (width) %i exceeds the limit. Fixed."), TotalChunkCountWidth);
-		TotalChunkCountWidth = UDMDHexMetrics::TotalChunkCountWidthMax;
+		UE_LOG(LogHexGrid, Warning, TEXT("Chunks amount (width) %i exceeds the limit. Fixed."), TotalChunksCountWidth);
+		TotalChunksCountWidth = UDMDHexMetrics::TotalChunksCountWidthMax;
 	}
 
-	if (TotalChunkCountHeight > UDMDHexMetrics::TotalChunkCountHeightMax)
+	if (TotalChunksCountHeight > UDMDHexMetrics::TotalChunksCountHeightMax)
 	{
-		UE_LOG(LogHexGrid, Warning, TEXT("Chunks amount (height) %i exceeds the limit. Fixed."), TotalChunkCountHeight);
-		TotalChunkCountHeight = UDMDHexMetrics::TotalChunkCountHeightMax;
-	}
-
-	if (ChunkSizeX > UDMDHexMetrics::ChunkSizeXMax)
-	{
-		UE_LOG(LogHexGrid, Warning, TEXT("Chunks size (width) %i exceeds the limit. Fixed."), ChunkSizeX);
-		ChunkSizeX = UDMDHexMetrics::ChunkSizeXMax;
+		UE_LOG(LogHexGrid, Warning, TEXT("Chunks amount (height) %i exceeds the limit. Fixed."), TotalChunksCountHeight);
+		TotalChunksCountHeight = UDMDHexMetrics::TotalChunksCountHeightMax;
 	}
 
 	if (ChunkSizeHeight > UDMDHexMetrics::ChunkSizeHeightMax)
@@ -272,15 +270,22 @@ void ADMDHexGrid::InitGridVariables()
 		ChunkSizeHeight = UDMDHexMetrics::ChunkSizeHeightMax;
 	}
 
+	if (ChunkSizeWidth > UDMDHexMetrics::ChunkSizeWidthMax)
+	{
+		UE_LOG(LogHexGrid, Warning, TEXT("Chunk size (width) %i exceeds the limit. Fixed."), ChunkSizeWidth);
+		ChunkSizeWidth = UDMDHexMetrics::ChunkSizeWidthMax;
+	}
+
 	// Init misc map variables
-	cellsTotalCountWidth = TotalChunkCountWidth * ChunkSizeX;
-	cellsTotalCountHeight = TotalChunkCountHeight * ChunkSizeHeight;
+	cellsTotalCountHeight = TotalChunksCountHeight * ChunkSizeHeight;
+	cellsTotalCountWidth = TotalChunksCountWidth * ChunkSizeWidth;
 	cellsCountTotal = cellsTotalCountWidth * cellsTotalCountHeight;
-	chunksCountTotal = TotalChunkCountWidth * TotalChunkCountHeight;
+	chunksCountTotal = TotalChunksCountWidth * TotalChunksCountHeight;
 
 	// Adjust cell labels location to start somewhere
 	// near cell center: half cell radius up (X axis)
 	// and quater cell radius left (Y axis)
-	LabelsStartLocation.X += UDMDHexMetrics::OuterRadius * 0.5f;
-	LabelsStartLocation.Y -= UDMDHexMetrics::OuterRadius * 0.25f;
+	// Upd: adjustment now adds directly in Label actor spawn
+	//LabelsStartLocation.X += UDMDHexMetrics::OuterRadius * 0.5f;
+	//LabelsStartLocation.Y -= UDMDHexMetrics::OuterRadius * 0.25f;
 }
