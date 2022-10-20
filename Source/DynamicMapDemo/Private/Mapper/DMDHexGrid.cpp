@@ -78,9 +78,9 @@ void ADMDHexGrid::BeginPlay()
 		i = 0;  // Reset counter
 		// Traverse all cells (square array)
 		// NB: grid_x and grid_y are referred to Cartesian [X,Y] axis, not UE [Forward,Right] axis
-		for (int grid_y = 0; grid_y < cellsTotalCountHeight; ++grid_y)
+		for (int32 grid_y = 0; grid_y < cellsTotalCountHeight; ++grid_y)
 		{
-			for (int grid_x = 0; grid_x < cellsTotalCountWidth; ++grid_x)
+			for (int32 grid_x = 0; grid_x < cellsTotalCountWidth; ++grid_x)
 			{
 				// Spawn Label actor
 				FActorSpawnParameters spawn_params_;
@@ -97,6 +97,7 @@ void ADMDHexGrid::BeginPlay()
 																 0.0f);
 				FRotator Rotation = FRotator(90.0f, 180.0f, 0.0f);        // Text "lays" in XY plane
 				CoordTextActors[i] = World->SpawnActor<ATextRenderActor>(ATextRenderActor::StaticClass(), Location, Rotation, spawn_params_);
+				UE_LOG(LogHexGrid, Display, TEXT("Text label Actor spawned at coordinates %s"), *Location.ToString());
 
 				// Set up actor's text
 				if (CoordTextActors[i])
@@ -145,9 +146,9 @@ void ADMDHexGrid::BeginPlay()
 		i = 0;  // Reset counter
 		// Traverse all chunks.
 		// NB: chunk_x and chunk_y are referred to Cartesian [X,Y] axis, not UE [Forward,Right] axis
-		for (int chunk_y = 0; chunk_y < TotalChunksCountHeight; ++chunk_y)
+		for (int32 chunk_y = 0; chunk_y < TotalChunksCountHeight; ++chunk_y)
 		{
-			for (int chunk_x = 0; chunk_x < TotalChunksCountWidth; ++chunk_x)
+			for (int32 chunk_x = 0; chunk_x < TotalChunksCountWidth; ++chunk_x)
 			{
 				// Spawn actor
 				FActorSpawnParameters spawn_params_;

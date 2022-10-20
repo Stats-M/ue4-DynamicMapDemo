@@ -44,7 +44,7 @@ void ADMDMapChunk::InitChunkVariables()
 	// Save this chunk global coordinates (used for triangles
 	// coordinates calculation) from the root (Scene) component
 	ChunkGlobalLocation = RootComponent->GetComponentLocation();
-	//UE_LOG(LogHexGrid, Display, TEXT("TODO Output this chunk coordinates (origin)"));
+	UE_LOG(LogHexGrid, Display, TEXT("Current chunk coordinates (origin) is %s"), *ChunkGlobalLocation.ToString());
 }
 
 // Called every frame
@@ -66,9 +66,9 @@ void ADMDMapChunk::ClearMeshData()
 
 void ADMDMapChunk::CreateMesh()
 {
-	for (int x = 0; x < 5; ++x)
+	for (int32 x = 0; x < 5; ++x)
 	{
-		for (int y = 0; y < 5; ++y)
+		for (int32 y = 0; y < 5; ++y)
 		{
 			// 1. Vertices of a squad
 			Vertices.Add(FVector(-200.0f + x * 200.0f, -200.0f + y * 200.0f, -10.0f));
@@ -160,9 +160,9 @@ void ADMDMapChunk::CreateMesh()
 // Process all hexes in this chunk, one by one
 void ADMDMapChunk::TriangulateMesh()
 {
-	for (int x = 0; x < 5; ++x)
+	for (int32 x = 0; x < 5; ++x)
 	{
-		for (int y = 0; y < 5; ++y)
+		for (int32 y = 0; y < 5; ++y)
 		{
 			// 0. Hex center. Uses UE coordinates (Forward, Right, Up instead of X,Y,Z)
 			// UE X (Forward) axis (real Y axis): 
@@ -174,7 +174,29 @@ void ADMDMapChunk::TriangulateMesh()
 				ChunkGlobalLocation.Y + 0.5f * UDMDHexMetrics::InnerRadius + 2.0f * y * UDMDHexMetrics::InnerRadius,
 				ChunkGlobalLocation.Z
 			};
+			UE_LOG(LogHexGrid, Display, TEXT("New cell center coordinates is %s"), *HexCenter_.ToString());
 
+			// Process all triangles of a single cell
+			for (int32 i = 0; i < UDMDHexMetrics::CellVerticesCount; ++i)
+			{
+				// 1. Vertices of the current hex (HexMetrics3D has index bounds protection, so we can use i+1)
+				Vertices.Add(HexCenter_);
+				Vertices.Add(HexCenter_ + UDMDHexMetrics::HexMetrics3D[i]);
+				Vertices.Add(HexCenter_ + UDMDHexMetrics::HexMetrics3D[i + 1]);
+
+				// 2. Triangles (vertices indexes in Vertices array)
+				Triangles.Add((x * 90) + (y * 18) + (i * 3 + 0));
+				Triangles.Add((x * 90) + (y * 18) + (i * 3 + 1));
+				Triangles.Add((x * 90) + (y * 18) + (i * 3 + 2));
+
+				// 3. UVs
+				UVs.Add(FVector2D(0.0f, 0.0f));
+				UVs.Add(FVector2D(0.0f, 1.0f));
+				UVs.Add(FVector2D(1.0f, 1.0f));
+			}
+
+			/* TEST SECTION. Only 1 triangle per cell
+			
 			// 1. Vertices of the current hex
 			Vertices.Add(HexCenter_);
 			Vertices.Add(HexCenter_ + UDMDHexMetrics::HexMetrics3D[0]);
@@ -189,11 +211,17 @@ void ADMDMapChunk::TriangulateMesh()
 			UVs.Add(FVector2D(0.0f, 0.0f));
 			UVs.Add(FVector2D(0.0f, 1.0f));
 			UVs.Add(FVector2D(1.0f, 1.0f));
+			*/
 		}
 	}
 
 	if (ProceduralMeshPtr)
 	{
+		/*
+		// Don't use CreateMeshSection() function. It is deprecated. Use LinearColor version.
+		ProceduralMeshPtr->CreateMeshSection(0, Vertices, Triangles, Normals, UVs, VertexColors, Tangents, true);
+		ProceduralMeshPtr->CreateMeshSection_LinearColor(0, Vertices, Triangles, Normals, UVs, VertexLinearColors, Tangents, true);
+		*/
 		ProceduralMeshPtr->CreateMeshSection_LinearColor(0, Vertices, Triangles, Normals, UVs, VertexLinearColors, Tangents, true);
 	}
 }

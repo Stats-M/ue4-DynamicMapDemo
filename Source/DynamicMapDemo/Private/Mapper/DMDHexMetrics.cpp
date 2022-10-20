@@ -6,6 +6,9 @@
  * Static members initialization 
  * (outside of any class definitions).
  */
+
+const int32 UDMDHexMetrics::CellVerticesCount = 6;
+
 const float UDMDHexMetrics::OuterRadius = 50.0f;
 
 const float UDMDHexMetrics::InnerRadius = UDMDHexMetrics::OuterRadius * 0.866025404f;

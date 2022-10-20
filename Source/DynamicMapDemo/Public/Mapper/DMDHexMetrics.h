@@ -18,6 +18,9 @@ class DYNAMICMAPDEMO_API UDMDHexMetrics : public UObject
 public:
 	UDMDHexMetrics();
 
+	// Vertices count for a grid cell
+	static const int32 CellVerticesCount;
+
 	// Outer hex radius in UE Units. The root value for all others metrics.
 	static const float OuterRadius;
 	// Inner hex radius
